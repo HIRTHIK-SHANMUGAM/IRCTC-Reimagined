@@ -1,0 +1,107 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --ri-scale: 1;
+  }
+
+  html {
+    font-size: calc(16px * var(--ri-scale));
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-canvas text-ink font-sans antialiased;
+    /* Faint paper tooth — the "cream paper surface" from the uiverse kits,
+       kept under 2% so it never reads as texture on a phone. */
+    background-image: radial-gradient(circle at 1px 1px, rgba(18, 33, 30, 0.022) 1px, transparent 0);
+    background-size: 22px 22px;
+  }
+
+  /* Numerals are the loudest element on a card — SearchSystem/North signage. */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-teal-600 ring-offset-2 ring-offset-canvas;
+  }
+
+  ::selection {
+    @apply bg-teal-100 text-teal-900;
+  }
+}
+
+@layer components {
+  /* Mono uppercase micro-label: DEPARTS · PLATFORM · COACH */
+  .label {
+    @apply font-mono text-label uppercase text-ink-faint;
+  }
+
+  .label-ink {
+    @apply font-mono text-label uppercase text-ink-muted;
+  }
+
+  /* Hairline card. Rules, not shadows. */
+  .card {
+    @apply rounded-card border border-rule bg-canvas-raised;
+  }
+
+  .card-sunk {
+    @apply rounded-card border border-rule bg-canvas-sunk;
+  }
+
+  .hairline {
+    @apply border-t border-rule;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .safe-b {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+
+/* High-contrast mode (accessibility panel) */
+html[data-contrast='high'] body {
+  background-image: none;
+  @apply bg-white;
+}
+html[data-contrast='high'] .card,
+html[data-contrast='high'] .card-sunk {
+  @apply border-ink;
+}
+html[data-contrast='high'] .label,
+html[data-contrast='high'] .label-ink {
+  @apply text-ink;
+}
+
+/* Elder / Simple mode — huge targets, one decision per screen */
+html[data-elder='true'] {
+  --ri-scale: 1.2;
+}
+html[data-elder='true'] button,
+html[data-elder='true'] a[role='button'] {
+  min-height: 3.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

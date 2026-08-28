@@ -1,0 +1,24 @@
+node_modules/
+dist/
+.emulator-data/
+*.local
+
+# Secrets — never commit
+.env
+.env.local
+.env.*.local
+functions/.env
+functions/.env.*
+!functions/.env.example
+*serviceAccount*.json
+*service-account*.json
+*firebase-adminsdk*.json
+.runtimeconfig.json
+
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+.DS_Store
+.vscode/
+.idea/
