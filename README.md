@@ -1,159 +1,191 @@
-# IRCTC RI
+# IRCTC RI — a reimagined Indian Railways booking system
 
-**Your railway travel operating system.** A reimagining of India's IRCTC that
-borrows Instagram's *interaction* genius — personalised, contextual,
-low-friction, progressively disclosed — and wraps the railway system's
-complexity in a calm, agentic experience.
+A full-stack, deployable web application: the whole IRCTC surface — trains,
+flights, buses, hotels, holiday packages, cabs, activities, food on train,
+retiring rooms, lounges, Rail Madad, eWallet, loyalty and offers — with an AI
+assistant that keeps working when the model does not.
 
-> The user should never have to understand Indian Railways in order to use
-> Indian Railways.
-
-This is a real, deployable web app with a real backend (Firebase Auth,
-Firestore, Cloud Functions, FCM). Only the train / station / seat *data* is
-mock — every user action persists for real.
+**Live:** https://irctc-reimagined-bcd77.web.app
 
 ---
 
-## What's inside
+## What it is
 
-- **A Journey Agent** — type *"Bangalore tomorrow morning, under ₹1000,
-  comfortable"* and it parses your intent, asks only what's missing (one
-  question at a time), searches real functions over the data layer, shows cards
-  **with a "Why?"**, pre-fills your saved passengers, and stops at the payment
-  gate for explicit confirmation. It never books silently.
-- **Two agent engines behind one interface** — Groq (`llama-3.3-70b-versatile`,
-  server-side in a Cloud Function) with a **deterministic rules engine** as a
-  fallback, so the whole flow works with Groq off, rate-limited, or unconfigured.
-- **The golden path, end to end** — sign in → Home → agent → results → passengers
-  → review → a visible **payment state machine** → success → a live **Track**
-  simulation → notifications.
-- **Aadhaar-centric accounts** — Aadhaar is the account (stored only as a salted,
-  one-way reference, never a raw number). Mobile is for communication. PNR is a
-  backend marker, never something you must memorise. Tickets are issued in each
-  passenger's own name.
-- **Full multi-language** — English, Tamil, Hindi. One toggle switches the UI
-  **and** train/station names, instantly, no reload. The agent accepts
-  mixed-language input (*"Naalaiku morning Chennai la irundhu Madurai poganum"*).
-- **Trust layer** — full fare transparency, plain-language availability, no dark
-  patterns, an explainability trail (`/audit_logs`, surfaced in Profile), and
-  human confirmation for anything consequential.
-- **Accessibility** — larger text, high contrast, and an Elder / Simple mode;
-  every motion effect respects `prefers-reduced-motion`.
-- **A hand-authored motion graphic** on the login page (an original SVG train
-  with parallax landscape, telegraph poles and turning wheels) plus a mild
-  cursor-follow effect — see `docs/DESIGN_RESEARCH.md` for the references these
-  were built from.
+Booking a train in India means knowing things you should not have to know: what
+RAC means, when Tatkal opens, which quota you qualify for, what a WL 23 is worth.
+This build hides none of that — it just explains it. Availability is stated in
+plain language, every recommendation carries its reason, the fare is shown in
+full before you pay, and the payment state is named on screen at every step.
 
-## Tech stack
+### The design
 
-React + TypeScript + Vite · Tailwind CSS · React Router · Zustand ·
-Framer Motion · lucide-react · i18next · **Firebase** (Auth, Firestore, Cloud
-Functions, FCM, Hosting) · **Groq** (server-side only).
+Navy and orange over a light grey-blue page, clean sans throughout, white cards
+with soft borders. Three screens are built to match a specific reference:
+
+- **Login** — split layout with a drawn, *moving* golden-hour scene: a WAP-7
+  locomotive holds the frame while four parallax bands (hills, treeline,
+  catenary masts, track) scroll past it, wheels turning and exhaust drifting.
+  It is SVG rather than a photograph, so it loads instantly, scales to any
+  panel, and actually animates. Honours `prefers-reduced-motion`.
+- **Dashboard** — fixed sidebar, universal ask bar, search card, quick actions,
+  recommendation rail, ranked train list, and a right column with the next
+  journey, a live-running status timeline, tourism promo and offers.
+- **AI Assistant** — chat with inline result **tables**, quick-action pills,
+  suggestion chips, an attachment slot, and a tools/FAQ sidebar.
+
+### Interaction layer
+
+- Hover **shine slide** on every button — a soft diagonal streak, ~600ms.
+- **Card lift** (`translateY(-2px)` + shadow) on every clickable card, 150ms.
+- **Live pulse** on the current-position dot in the running-status timeline.
+- **Chat bubbles** fade and slide in from their own side.
+- **Result rows** stagger in 40ms apart.
 
 ---
 
-## Run it locally
+## The AI assistant, and why it never breaks
+
+Three layers, in order:
+
+1. **Groq** (`llama-3.3-70b-versatile`) via a Cloud Function. Never sees train
+   data it did not receive — the ranked candidates are computed locally and
+   passed in, so the model describes real rows and cannot invent a train.
+2. **Deterministic rules engine** in the browser. Regex and dictionary parsing
+   for route, date, time window, budget and class. It runs *first* on every
+   turn, so a usable answer already exists before the model is even called.
+3. **The FAQ table** for questions with one correct answer — refund windows,
+   Tatkal timings, what RAC means. Those never go to a model at all.
+
+The Groq call has an explicit **8-second timeout**. A timeout, a malformed
+response, a rate limit, an invalid key or no key at all all resolve the same
+way: the deterministic answer is used, the failure is written to `/audit_logs`,
+and the user sees an uninterrupted conversation. If neither engine can extract
+enough to search, the assistant asks exactly one clarifying question rather than
+showing an error or an empty state.
+
+Each reply carries an honest one-line badge saying which engine answered it.
+
+### Multiple Groq keys
+
+Keys are tried in order and rotated automatically on `401`, `403` or `429`.
+Adding another key is a config change, never a code change. In `functions/.env`:
+
+```bash
+# easiest — comma-separated
+GROQ_API_KEYS=gsk_first...,gsk_second...,gsk_third...
+
+# or numbered
+GROQ_API_KEY_1=gsk_first...
+GROQ_API_KEY_2=gsk_second...
+
+# the original single-key names still work
+GROQ_API_KEY=gsk_...
+```
+
+A timeout or network fault is *not* treated as a key problem, so a slow
+network does not burn through the rotation.
+
+---
+
+## Running it
 
 ```bash
 npm install
-npm run dev
+npm run dev            # http://localhost:5173
 ```
 
-That's it. **With no Firebase project configured, the app runs fully against a
-durable local persistence adapter** — sign in, book, reload, and everything is
-still there. Use *"Try the instant demo"* on the login screen to sign in as
-Ananya Rao with saved people and one upcoming journey.
+With no Firebase project configured the app still runs end to end against a
+durable local adapter — every write survives reload and sign-out. Set the
+`VITE_FIREBASE_*` variables (copy `.env.example` to `.env.local`) and every read
+and write moves to Firestore with no other change.
 
-### Connect a real Firebase backend
+### Signing in
 
-1. Create a Firebase project and copy `.env.example` to `.env`, filling in the
-   `VITE_FIREBASE_*` public config values.
-2. The app automatically switches from the local adapter to Firestore — no code
-   change. Sign-in, people, journeys and preferences now persist server-side.
+- **Try the instant demo** — one click into a seeded account. Nothing to type.
+- Or the real flow: any 12-digit Aadhaar, any 10-digit mobile, and the OTP is
+  shown on screen (`123456`). No SMS provider is wired in.
 
-### Groq (the AI layer) — server-side only
+Aadhaar is the account key, but the number itself is hashed to a one-way
+reference before anything is persisted. It is never stored or displayed.
 
-**The Groq key never ships to the browser.** All Groq calls run inside a Cloud
-Function.
-
-1. Generate a **fresh** key at <https://console.groq.com>.
-2. Put it in `functions/.env` (gitignored):
-   ```
-   GROQ_API_KEY=gsk_your_fresh_key_here
-   GROQ_MODEL=llama-3.3-70b-versatile
-   ```
-   or `firebase functions:config:set groq.key="gsk_..."`.
-3. Deploy the functions (below). With Groq unconfigured the app falls back to the
-   rules engine and the agent works exactly the same.
-
-> Any key that has ever been pasted into a chat, ticket, or commit must be
-> rotated before use. Nothing secret lives in this repo — see `.gitignore`.
-
-### Emulators
+### Backend
 
 ```bash
-npm run emulators          # Auth, Firestore, Functions, Hosting UI
-# set VITE_USE_EMULATORS=true in .env, then:
-npm run dev
-```
-
-### Seed a real Firestore project
-
-```bash
-# with a service-account key at ./serviceAccount.json (gitignored), or
-# against the emulator via FIRESTORE_EMULATOR_HOST=127.0.0.1:8080
-npm run seed
-```
-
-Seeds `/trains`, `/stations`, and one demo account with people, a saved search,
-preferences and an upcoming journey.
-
----
-
-## Deploy
-
-```bash
+npm run emulators      # Auth + Firestore + Functions locally
+npm run seed           # populate /trains, /stations and a demo account
 npm run build
-firebase deploy            # hosting + functions + firestore rules/indexes
+firebase deploy
 ```
 
-The build outputs to `dist/`; `firebase.json` serves it as an SPA. Cloud
-Functions include `parseIntent` / `agentRespond` (Groq) and the scheduled
-`tickJourneyTracking` / `prepareCharts` that drive live tracking and journey
-notifications.
+Seeding against the live project needs a service-account key at
+`serviceAccount.json` (gitignored), or `GOOGLE_APPLICATION_CREDENTIALS` set.
 
 ---
 
-## Project layout
+## Project structure
 
 ```
 src/
-  data/        mock trains, stations, and the instant-demo seed
-  engine/      availability · search + ranking · intent parsing (rules)
-  lib/         firebase · backend adapters (local + firestore) · agent bridge · messaging
-  store/       session · booking draft · accessibility settings (Zustand)
-  components/  ui primitives · motion (train scene, cursor, microinteractions) · layout
-  features/    auth · home · agent · search · booking · trips · track · explore · profile
-  i18n/        en / ta / hi resources + locale detection
-functions/     Cloud Functions — Groq (server-side) + scheduled tracking/notifications
-scripts/       seed.ts (Firestore), engine-check.ts (deterministic engine tests)
-docs/          DESIGN_RESEARCH.md — the references this UI was built from
+  nav.ts                  single source of truth for the sidebar
+  App.tsx                 routing — every nav row resolves to a real screen
+  components/
+    art/                  TrainHero (the moving login scene), SceneArt
+    layout/               Sidebar, TopBar, AppShell, notifications, language
+    ui/                   the design system: buttons, inputs, badges, modals
+  data/                   trains, stations, and the mock catalogue
+  engine/                 search ranking, availability, intent parsing
+  features/
+    auth/                 login
+    dashboard/            home
+    assistant/            the AI screen
+    trains/               search card, result row, results + Tatkal
+    booking/              passengers → review → payment → success
+    travel/               flights, buses, hotels, packages, cabs, activities
+    journeys/             trips, live status, PNR, cancelled, TDR
+    services/             food, rooms, lounge, Rail Madad, wallet, loyalty…
+    tools/                schedule, platform locator, coach position
+    common/Checkout.tsx   the shared checkout every category books through
+  hooks/useLiveTrain.ts   the running-train simulation
+  lib/
+    agent.ts              Groq → rules → FAQ, with the timeout and fallback
+    backend/              Repo interface + Firestore and local implementations
+  store/                  session, booking, settings
+functions/src/            Cloud Functions: agent, Groq client with key rotation
 ```
 
-## Definition of done — how this maps
+Two backends sit behind one `Repo` interface — Firestore when a project is
+configured, a local adapter when it is not. Nothing above that line knows which
+one it is talking to.
 
-- **Real auth & persistence** — Firestore (or the local adapter); reload/relogin
-  keeps journeys, people, preferences.
-- **Golden path** — flawless end to end, with an instant demo login.
-- **Agent** — parses NL, asks only what's missing, cards + Why, prepares the
-  booking, stops at pay; rules fallback works with Groq off.
-- **Availability in plain language**; PNR never required as memory; ticket in the
-  passenger's real name.
-- **Notifications** — arriving-soon / arrived / about-to-depart fire from the
-  scheduled function; priority tiers; no marketing during a journey.
-- **One-click language** — UI **and** train/station names; local + English
-  surfaced by location, any language selectable.
-- **No secrets in the repo** — Groq via Cloud Function only; `.env.example`
-  present; this README documents fresh-key setup and deploy.
-- **No dead ends, no unexplained errors, full fare transparency, visible payment
-  states.**
+---
+
+## What is real and what is mock
+
+**Real:** Firebase Auth sessions. Every user action persisting to Firestore —
+bookings across all ten categories, the eWallet balance and its ledger, saved
+people, preferences, grievances, TDR claims, the conversation thread, audit
+logs. The ranking engine, availability model and fare maths. The Groq call and
+its fallback chain. Promo codes that actually reduce the total.
+
+**Mock:** Train, flight, bus, hotel and package inventory. Live train positions
+(simulated from the timetable, refreshed on an interval). Payments — no gateway,
+no money moves. OTP delivery. UIDAI lookup.
+
+The eWallet is deliberately genuine: top-ups credit it, bookings debit it,
+cancellations refund 80% straight back to it, and the figure in the header moves
+with all three.
+
+---
+
+## Definition of done
+
+- [x] Every sidebar row opens a real, populated, interactive screen — no dead
+      links, no "coming soon" pages.
+- [x] Login, Dashboard and Assistant match the reference layouts.
+- [x] The assistant works with Groq **and** continues working when Groq fails,
+      is rate-limited or has no key — both paths verified.
+- [x] Multiple Groq keys configurable and rotated automatically on failure.
+- [x] Hover shine and card lift throughout, fast enough never to slow a booking.
+- [x] eWallet genuinely persisted and moved by bookings, top-ups and refunds.
+- [x] The golden path — search → book → pay → confirm → track → notification —
+      still flawless.

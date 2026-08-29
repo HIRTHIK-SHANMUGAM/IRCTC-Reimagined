@@ -54,7 +54,7 @@ export function Profile() {
   return (
     <div className="max-w-2xl space-y-10">
       <header>
-        <h1 className="font-display text-4xl leading-tight">{t('profile.title')}</h1>
+        <h1 className="font-extrabold tracking-tight text-4xl leading-tight">{t('profile.title')}</h1>
       </header>
 
       {/* ---- account ---- */}
@@ -62,7 +62,7 @@ export function Profile() {
         <SectionHeading>{t('profile.account')}</SectionHeading>
         <div className="card p-5">
           <div className="flex items-center gap-4">
-            <span className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-teal-700 text-xl font-medium text-canvas">
+            <span className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-navy-700 text-xl font-medium text-white">
               {user.name.charAt(0).toUpperCase()}
             </span>
             <div className="min-w-0">
@@ -71,7 +71,7 @@ export function Profile() {
             </div>
           </div>
 
-          <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-rule pt-4">
+          <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-line pt-4">
             <Badge tone="confirmed">
               <ShieldCheck className="h-3 w-3" aria-hidden="true" />
               {t('profile.aadhaarLinked')}
@@ -103,10 +103,10 @@ export function Profile() {
         </SectionHeading>
         <p className="mb-3 text-sm text-ink-muted">{t('profile.peopleHelp')}</p>
 
-        <ul className="card divide-y divide-rule">
+        <ul className="card divide-y divide-line">
           {people.map((p) => (
             <li key={p.id} className="flex items-center gap-4 p-4">
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-canvas-sunk font-medium text-ink-muted">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-surface-sunk font-medium text-ink-muted">
                 {p.name.charAt(0).toUpperCase()}
               </span>
               <span className="min-w-0 flex-1">
@@ -150,7 +150,7 @@ export function Profile() {
             })}
           </p>
 
-          <div className="mt-5 border-t border-rule pt-5">
+          <div className="mt-5 border-t border-line pt-5">
             <Toggle
               label={t('profile.personalization')}
               help={
@@ -171,7 +171,7 @@ export function Profile() {
         {audit.length === 0 ? (
           <p className="text-sm text-ink-faint">{t('profile.noAudit')}</p>
         ) : (
-          <ul className="card divide-y divide-rule">
+          <ul className="card divide-y divide-line">
             {audit.map((a) => (
               <li key={a.id} className="flex gap-3 p-4">
                 <Eye className="mt-0.5 h-4 w-4 shrink-0 text-ink-faint" aria-hidden="true" />
@@ -228,7 +228,7 @@ export function Profile() {
               step={100}
               value={prefs.max_budget}
               onChange={(e) => void savePreferences({ max_budget: Number(e.target.value) })}
-              className="h-12 w-full accent-teal-700"
+              className="h-12 w-full accent-navy-700"
             />
           </div>
 
@@ -296,14 +296,14 @@ export function Profile() {
             checked={settings.largeText}
             onChange={(v) => settings.set({ largeText: v })}
           />
-          <div className="border-t border-rule pt-5">
+          <div className="border-t border-line pt-5">
             <Toggle
               label={t('profile.highContrast')}
               checked={settings.highContrast}
               onChange={(v) => settings.set({ highContrast: v })}
             />
           </div>
-          <div className="border-t border-rule pt-5">
+          <div className="border-t border-line pt-5">
             <Toggle
               label={t('profile.elderMode')}
               help={t('profile.elderModeHelp')}
@@ -322,7 +322,7 @@ export function Profile() {
         </Alert>
       )}
 
-      <section className={cx('border-t border-rule pt-6')}>
+      <section className={cx('border-t border-line pt-6')}>
         <Button variant="secondary" onClick={() => void signOut()} icon={<LogOut className="h-4 w-4" />}>
           {t('profile.signOut')}
         </Button>

@@ -7,6 +7,8 @@ import type {
   RankedTrain,
 } from '@/types';
 import { getFns, firebaseConfigured } from '@/lib/firebase';
+import { repo } from '@/lib/backend';
+import { FAQS } from '@/data/catalog';
 import { rulesTurn, nextMissingField, MISSING_FIELD_QUESTION } from '@/engine/intent';
 import { STATIONS } from '@/data/stations';
 import { availabilityLabel } from '@/engine/availability';
@@ -117,6 +119,40 @@ function candidatePayload(rows: RankedTrain[] = []) {
   }));
 }
 
+/** Explicit ceiling on the model call (addendum §4.2) — a slow key must never
+ *  hold the chat open. Losing the race resolves to the rules answer. */
+const GROQ_TIMEOUT_MS = 8000;
+
+function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([
+    p,
+    new Promise<T>((_, reject) => setTimeout(() => reject(new Error('agent-timeout')), ms)),
+  ]);
+}
+
+/**
+ * Answers the questions that have one correct answer — refund windows, Tatkal
+ * timings, what RAC means — from the FAQ table rather than the model, so they
+ * are right every time and work with no key configured at all.
+ */
+export function knowledgeAnswer(message: string): string | null {
+  const t = message.toLowerCase();
+  const topics: [RegExp, number][] = [
+    [/\btatkal\b/, 1],
+    [/\bcancel|cancellation\b/, 2],
+    [/\btdr\b/, 3],
+    [/\brefund\b/, 4],
+    [/\bboarding (point|station)\b/, 5],
+    [/\brac\b/, 6],
+    [/co-?passenger|add (a )?passenger|travel people/, 7],
+    [/\bpnr\b.*(status|check)|check.*\bpnr\b/, 0],
+  ];
+  for (const [re, idx] of topics) {
+    if (re.test(t) && FAQS[idx]) return FAQS[idx].a;
+  }
+  return null;
+}
+
 export async function runAgentTurn(
   message: string,
   ctx: AgentContext,
@@ -124,6 +160,12 @@ export async function runAgentTurn(
   // The deterministic result is computed first and always available. Groq can
   // only improve on it; it can never be the sole source of an answer.
   const fallback = rulesTurn(message, ctx.carried);
+
+  // Settled questions are answered from the FAQ table, not the model.
+  const known = knowledgeAnswer(message);
+  if (known && fallback.intent !== 'search_trains') {
+    return { ...fallback, response_text: known, missing_field: undefined };
+  }
 
   const fns = firebaseConfigured ? getFns() : undefined;
   if (!fns) return fallback;
@@ -133,17 +175,30 @@ export async function runAgentTurn(
 
   try {
     const call = httpsCallable<Record<string, unknown>, RawTurn>(fns, fnName);
-    const res = await call({
-      message,
-      history: ctx.history.slice(-8).map((m) => ({ role: m.role, text: m.text })),
-      carriedEntities: ctx.carried,
-      stationList: STATION_LIST,
-      candidates: candidatePayload(ctx.candidates),
-      today: todayISO(),
-    });
+    const res = await withTimeout(
+      call({
+        message,
+        history: ctx.history.slice(-8).map((m) => ({ role: m.role, text: m.text })),
+        carriedEntities: ctx.carried,
+        stationList: STATION_LIST,
+        candidates: candidatePayload(ctx.candidates),
+        today: todayISO(),
+      }),
+      GROQ_TIMEOUT_MS,
+    );
     return coerce(res.data ?? {}, fallback);
-  } catch {
+  } catch (err) {
     // Unavailable, rate-limited, timed out, no key — all the same to the user.
+    // Logged for our own debugging; never surfaced as an error in the chat.
+    void repo
+      .logAudit({
+        user_id: 'self',
+        action: 'agent_fallback',
+        input_entities: { message: message.slice(0, 120), fn: fnName },
+        reasoning: err instanceof Error ? err.message : 'groq call failed',
+        result: 'Answered with the deterministic engine instead.',
+      })
+      .catch(() => undefined);
     return fallback;
   }
 }

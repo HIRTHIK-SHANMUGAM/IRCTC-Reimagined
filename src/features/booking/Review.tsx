@@ -29,7 +29,7 @@ export function Review() {
   const { selection, query, passengers } = booking;
 
   if (!selection || !query || passengers.length === 0) {
-    navigate('/book');
+    navigate('/trains');
     return null;
   }
 
@@ -41,7 +41,7 @@ export function Review() {
   return (
     <div className="mx-auto max-w-2xl space-y-8">
       <header>
-        <h1 className="font-display text-3xl leading-tight">{t('booking.review')}</h1>
+        <h1 className="font-extrabold tracking-tight text-3xl leading-tight">{t('booking.review')}</h1>
         <p className="mt-2 text-[0.9375rem] text-ink-muted">{formatDateLong(query.date)}</p>
       </header>
 
@@ -49,7 +49,7 @@ export function Review() {
       <section className="card p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <h2 className="truncate font-display text-2xl leading-tight">{L(selection.train.name)}</h2>
+            <h2 className="truncate font-extrabold tracking-tight text-2xl leading-tight">{L(selection.train.name)}</h2>
             <p className="label mt-1.5">
               {selection.train.number} · {t(`classes.${selection.travel_class}`)} · {query.quota}
             </p>
@@ -69,7 +69,7 @@ export function Review() {
           </div>
           <div className="min-w-0 flex-1 text-center">
             <span className="label">{formatDuration(selection.train.duration_minutes)}</span>
-            <div className="mt-1 h-px w-full bg-rule-strong" />
+            <div className="mt-1 h-px w-full bg-line-strong" />
           </div>
           <div className="text-right">
             <div className="tnum text-2xl font-semibold leading-none">
@@ -79,7 +79,7 @@ export function Review() {
           </div>
         </div>
 
-        <p className="mt-4 border-t border-rule pt-4 text-sm text-ink-muted">{a.detail}</p>
+        <p className="mt-4 border-t border-line pt-4 text-sm text-ink-muted">{a.detail}</p>
       </section>
 
       {/* ---- passengers ---- */}
@@ -88,7 +88,7 @@ export function Review() {
           action={
             <button
               type="button"
-              onClick={() => navigate('/book/passengers')}
+              onClick={() => navigate('/trains/passengers')}
               className="label-ink transition-colors hover:text-ink"
             >
               {t('common.edit')}
@@ -97,10 +97,10 @@ export function Review() {
         >
           {t('booking.who')}
         </SectionHeading>
-        <ul className="card divide-y divide-rule">
+        <ul className="card divide-y divide-line">
           {passengers.map((p) => (
             <li key={p.id} className="flex items-center gap-4 p-4">
-              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-canvas-sunk font-medium text-ink-muted">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-surface-sunk font-medium text-ink-muted">
                 {p.name.charAt(0).toUpperCase()}
               </span>
               <span className="min-w-0 flex-1">
@@ -135,7 +135,7 @@ export function Review() {
             <dt className="text-ink-muted">{t('booking.insurance')}</dt>
             <dd className="tnum">{rupees(fare.insurance)}</dd>
           </div>
-          <div className="flex justify-between gap-4 border-t border-rule pt-3">
+          <div className="flex justify-between gap-4 border-t border-line pt-3">
             <dt className="text-lg font-medium">{t('booking.total')}</dt>
             <dd className="tnum text-2xl font-semibold">{rupees(fare.total)}</dd>
           </div>
@@ -156,11 +156,11 @@ export function Review() {
               className={cx(
                 'card flex flex-col items-start gap-3 p-4 text-left transition-colors',
                 booking.paymentMethod === id
-                  ? 'border-teal-700 ring-1 ring-teal-700'
-                  : 'hover:border-rule-strong',
+                  ? 'border-navy-700 ring-1 ring-navy-700'
+                  : 'hover:border-line-strong',
               )}
             >
-              <Icon className="h-5 w-5 text-teal-700" aria-hidden="true" />
+              <Icon className="h-5 w-5 text-navy-700" aria-hidden="true" />
               <span className="text-sm font-medium">{label}</span>
             </button>
           ))}
@@ -171,11 +171,11 @@ export function Review() {
         Nothing is booked and nothing is charged until you press the button below.
       </Alert>
 
-      <div className="sticky bottom-20 flex flex-col gap-2 border-t border-rule bg-canvas pt-4 sm:flex-row-reverse lg:bottom-0">
-        <Button size="lg" full onClick={() => navigate('/book/payment')}>
+      <div className="sticky bottom-20 flex flex-col gap-2 border-t border-line bg-page pt-4 sm:flex-row-reverse lg:bottom-0">
+        <Button size="lg" full onClick={() => navigate('/trains/payment')}>
           {t('booking.confirmAndPay', { amount: Math.round(fare.total).toLocaleString('en-IN') })}
         </Button>
-        <Button size="lg" variant="secondary" onClick={() => navigate('/book/passengers')}>
+        <Button size="lg" variant="secondary" onClick={() => navigate('/trains/passengers')}>
           {t('booking.back')}
         </Button>
       </div>

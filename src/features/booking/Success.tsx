@@ -69,7 +69,7 @@ export function Success() {
         >
           <Check className="h-8 w-8" aria-hidden="true" />
         </motion.span>
-        <h1 className="mt-5 font-display text-4xl leading-tight">{t('success.title')}</h1>
+        <h1 className="mt-5 font-extrabold tracking-tight text-4xl leading-tight">{t('success.title')}</h1>
         <p className="mt-2 text-[0.9375rem] text-ink-muted">
           {formatDateLong(journey.journey_date)}
         </p>
@@ -80,7 +80,7 @@ export function Success() {
         <div className="p-5">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
-              <h2 className="truncate font-display text-2xl leading-tight">{L(journey.train_name)}</h2>
+              <h2 className="truncate font-extrabold tracking-tight text-2xl leading-tight">{L(journey.train_name)}</h2>
               <p className="label mt-1.5">
                 {journey.train_number} · {t(`classes.${journey.class}`)} · {journey.quota}
               </p>
@@ -104,12 +104,12 @@ export function Success() {
         </div>
 
         {/* Perforation — the one skeuomorphic touch, and it earns its place. */}
-        <div className="relative border-t border-dashed border-rule-strong">
-          <span className="absolute -left-2.5 -top-2.5 block h-5 w-5 rounded-full bg-canvas" />
-          <span className="absolute -right-2.5 -top-2.5 block h-5 w-5 rounded-full bg-canvas" />
+        <div className="relative border-t border-dashed border-line-strong">
+          <span className="absolute -left-2.5 -top-2.5 block h-5 w-5 rounded-full bg-page" />
+          <span className="absolute -right-2.5 -top-2.5 block h-5 w-5 rounded-full bg-page" />
         </div>
 
-        <ul className="divide-y divide-rule">
+        <ul className="divide-y divide-line">
           {journey.passengers.map((p) => (
             <li key={p.person_id} className="flex items-center gap-4 p-5">
               <span className="min-w-0 flex-1">
@@ -129,7 +129,7 @@ export function Success() {
           ))}
         </ul>
 
-        <div className="flex items-center justify-between border-t border-rule bg-canvas-sunk px-5 py-4">
+        <div className="flex items-center justify-between border-t border-line bg-surface-sunk px-5 py-4">
           <span className="label">{t('booking.total')}</span>
           <span className="tnum text-lg font-semibold">{rupees(journey.total_fare)}</span>
         </div>

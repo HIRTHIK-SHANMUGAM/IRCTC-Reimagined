@@ -21,15 +21,20 @@ import {
 import type {
   AppNotification,
   AuditLog,
+  Booking,
   ChatMessage,
+  Grievance,
   Journey,
   JourneyTracking,
   Person,
   SavedSearch,
+  TdrClaim,
   TrainWatch,
   UserProfile,
+  Wallet,
+  WalletTransaction,
 } from '@/types';
-import { DEFAULT_PREFERENCES, type Repo } from './types';
+import { DEFAULT_PREFERENCES, STARTING_WALLET_BALANCE, type Repo } from './types';
 import { getAuthClient, getDb } from '@/lib/firebase';
 import { aadhaarRef } from '@/lib/hash';
 
@@ -286,5 +291,110 @@ export const firestoreRepo: Repo = {
       query(collection(db(), 'audit_logs'), orderBy('timestamp', 'desc'), fsLimit(limit)),
     );
     return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as AuditLog);
+  },
+
+  /* ---------------------------------------------------------- bookings */
+
+  async listBookings() {
+    const snap = await getDocs(sub('bookings'));
+    return snap.docs
+      .map((d) => ({ id: d.id, ...d.data() }) as Booking)
+      .sort((a, b) => b.created_at - a.created_at);
+  },
+
+  async createBooking(b) {
+    const payload = { ...b, created_at: Date.now() };
+    const created = await addDoc(sub('bookings'), payload);
+    return { id: created.id, ...payload };
+  },
+
+  async cancelBooking(id, reason) {
+    const ref = doc(db(), 'users', uid(), 'bookings', id);
+    const snap = await getDoc(ref);
+    const total = snap.exists() ? ((snap.data() as Booking).total ?? 0) : 0;
+    await updateDoc(ref, {
+      status: 'cancelled',
+      cancelled_at: Date.now(),
+      cancellation_reason: reason,
+      refund_status: 'initiated',
+      refund_amount: Math.round(total * 0.8),
+    });
+  },
+
+  /* ------------------------------------------------------------ wallet */
+
+  async getWallet() {
+    const ref = doc(db(), 'users', uid(), 'wallet', 'main');
+    const snap = await getDoc(ref);
+    if (snap.exists()) return snap.data() as Wallet;
+    // First read seeds the welcome balance shown in the header chip.
+    const seeded: Wallet = { balance: STARTING_WALLET_BALANCE, updated_at: Date.now() };
+    await setDoc(ref, seeded);
+    await addDoc(sub('wallet_transactions'), {
+      kind: 'credit',
+      amount: STARTING_WALLET_BALANCE,
+      note: 'Welcome balance',
+      created_at: Date.now(),
+    });
+    return seeded;
+  },
+
+  async listWalletTransactions() {
+    const snap = await getDocs(sub('wallet_transactions'));
+    return snap.docs
+      .map((d) => ({ id: d.id, ...d.data() }) as WalletTransaction)
+      .sort((a, b) => b.created_at - a.created_at);
+  },
+
+  async addWalletTransaction(t) {
+    const current = await this.getWallet();
+    const delta = t.kind === 'credit' ? t.amount : -t.amount;
+    const next: Wallet = {
+      balance: Math.max(0, Math.round((current.balance + delta) * 100) / 100),
+      updated_at: Date.now(),
+    };
+    await addDoc(sub('wallet_transactions'), { ...t, created_at: Date.now() });
+    await setDoc(doc(db(), 'users', uid(), 'wallet', 'main'), next);
+    return next;
+  },
+
+  /* -------------------------------------------------------- grievances */
+
+  async listGrievances() {
+    const snap = await getDocs(sub('grievances'));
+    return snap.docs
+      .map((d) => ({ id: d.id, ...d.data() }) as Grievance)
+      .sort((a, b) => b.created_at - a.created_at);
+  },
+
+  async fileGrievance(g) {
+    const payload = {
+      ...g,
+      complaint_id: 'RM' + String(Math.floor(1e8 + Math.random() * 9e8)),
+      status: 'filed' as const,
+      created_at: Date.now(),
+    };
+    const created = await addDoc(sub('grievances'), payload);
+    return { id: created.id, ...payload };
+  },
+
+  /* --------------------------------------------------------------- TDR */
+
+  async listTdrClaims() {
+    const snap = await getDocs(sub('tdr_claims'));
+    return snap.docs
+      .map((d) => ({ id: d.id, ...d.data() }) as TdrClaim)
+      .sort((a, b) => b.created_at - a.created_at);
+  },
+
+  async fileTdrClaim(c) {
+    const payload = {
+      ...c,
+      tdr_id: 'TDR' + String(Math.floor(1e7 + Math.random() * 9e7)),
+      status: 'filed' as const,
+      created_at: Date.now(),
+    };
+    const created = await addDoc(sub('tdr_claims'), payload);
+    return { id: created.id, ...payload };
   },
 };

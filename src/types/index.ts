@@ -315,3 +315,98 @@ export interface Alternative {
   reason: string;
   query: Partial<SearchQuery>;
 }
+
+/* ------------------------------------------------------------------ */
+/* Cross-category bookings (addendum §5)                               */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Every non-train product books through one generic shape so My Trips,
+ * Cancelled Tickets, the wallet ledger and TDR all work across categories
+ * without a per-product branch.
+ */
+export type BookingCategory =
+  | 'train'
+  | 'flight'
+  | 'bus'
+  | 'hotel'
+  | 'cab'
+  | 'package'
+  | 'activity'
+  | 'food'
+  | 'retiring'
+  | 'lounge';
+
+export type BookingStatus = 'confirmed' | 'cancelled' | 'completed' | 'pending';
+
+export type RefundStatus = 'none' | 'initiated' | 'processed';
+
+export interface Booking {
+  id: string;
+  category: BookingCategory;
+  /** PNR-style reference the user is shown on the confirmation screen. */
+  reference: string;
+  title: string;
+  subtitle: string;
+  /** ISO date of travel / check-in / delivery. */
+  date: string;
+  time?: string;
+  status: BookingStatus;
+  total: number;
+  /** Rendered as a label/value grid on the ticket and detail views. */
+  details: Record<string, string>;
+  created_at: number;
+  cancelled_at?: number;
+  cancellation_reason?: string;
+  refund_status?: RefundStatus;
+  refund_amount?: number;
+  /** Promo code applied at mock checkout, if any. */
+  promo_code?: string;
+}
+
+/* ---------------------------------------------------------- eWallet ---- */
+
+export interface WalletTransaction {
+  id: string;
+  kind: 'credit' | 'debit';
+  amount: number;
+  note: string;
+  /** Booking this transaction settled, when it came from a checkout. */
+  booking_ref?: string;
+  created_at: number;
+}
+
+export interface Wallet {
+  balance: number;
+  updated_at: number;
+}
+
+/* ------------------------------------------------------- Rail Madad ---- */
+
+export type CaseStatus = 'filed' | 'under_review' | 'resolved';
+
+export interface Grievance {
+  id: string;
+  complaint_id: string;
+  category: string;
+  reference: string;
+  description: string;
+  status: CaseStatus;
+  created_at: number;
+}
+
+/* -------------------------------------------------------------- TDR ---- */
+
+export interface TdrClaim {
+  id: string;
+  tdr_id: string;
+  pnr: string;
+  reason: string;
+  status: CaseStatus;
+  amount: number;
+  created_at: number;
+}
+
+/* ------------------------------------------------------- Loyalty ------- */
+
+export type LoyaltyTier = 'Silver' | 'Gold' | 'Platinum';

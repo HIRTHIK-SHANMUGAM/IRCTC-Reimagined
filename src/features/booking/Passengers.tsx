@@ -23,7 +23,7 @@ export function Passengers() {
   const [adding, setAdding] = useState(false);
 
   if (!booking.selection || !booking.query) {
-    navigate('/book');
+    navigate('/trains');
     return null;
   }
 
@@ -48,7 +48,7 @@ export function Passengers() {
     <div className="xl:grid xl:grid-cols-[1fr_20rem] xl:gap-8">
       <div className="space-y-8">
         <header>
-          <h1 className="font-display text-3xl leading-tight">{t('booking.who')}</h1>
+          <h1 className="font-extrabold tracking-tight text-3xl leading-tight">{t('booking.who')}</h1>
           <p className="mt-2 text-[0.9375rem] text-ink-muted">{t('booking.whoHelp')}</p>
         </header>
 
@@ -74,14 +74,14 @@ export function Passengers() {
                     aria-pressed={selected}
                     className={cx(
                       'card flex w-full items-center gap-4 p-4 text-left transition-colors',
-                      selected ? 'border-teal-700 ring-1 ring-teal-700' : 'hover:border-rule-strong',
+                      selected ? 'border-navy-700 ring-1 ring-navy-700' : 'hover:border-line-strong',
                       full && 'cursor-not-allowed opacity-45',
                     )}
                   >
                     <span
                       className={cx(
                         'grid h-10 w-10 shrink-0 place-items-center rounded-full font-medium',
-                        selected ? 'bg-teal-700 text-canvas' : 'bg-canvas-sunk text-ink-muted',
+                        selected ? 'bg-navy-700 text-white' : 'bg-surface-sunk text-ink-muted',
                       )}
                     >
                       {p.name.charAt(0).toUpperCase()}
@@ -128,7 +128,7 @@ export function Passengers() {
           </Button>
           <Button
             disabled={chosen.length !== required}
-            onClick={() => navigate('/book/review')}
+            onClick={() => navigate('/trains/review')}
             icon={<ArrowRight className="h-4 w-4" />}
           >
             {t('booking.continue')}

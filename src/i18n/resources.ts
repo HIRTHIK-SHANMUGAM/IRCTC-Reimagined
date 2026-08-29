@@ -219,7 +219,7 @@ export const resources = {
       },
 
       profile: {
-        title: 'You',
+        title: 'Profile',
         people: 'Travel People',
         peopleHelp: 'People you book for. Their ticket carries their own name.',
         addPerson: 'Add a person',
@@ -521,7 +521,7 @@ export const resources = {
       },
 
       profile: {
-        title: 'நீங்கள்',
+        title: 'சுயவிவரம்',
         people: 'பயண நபர்கள்',
         peopleHelp: 'நீங்கள் யாருக்காக முன்பதிவு செய்கிறீர்களோ அவர்கள். டிக்கெட் அவர்கள் பெயரிலேயே இருக்கும்.',
         addPerson: 'ஒரு நபரைச் சேர்',
@@ -823,7 +823,7 @@ export const resources = {
       },
 
       profile: {
-        title: 'आप',
+        title: 'प्रोफ़ाइल',
         people: 'यात्रा के लोग',
         peopleHelp: 'जिनके लिए आप बुक करते हैं। टिकट उन्हीं के नाम पर होता है।',
         addPerson: 'व्यक्ति जोड़ें',

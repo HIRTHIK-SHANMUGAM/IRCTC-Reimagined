@@ -1,14 +1,19 @@
 import type {
   AppNotification,
   AuditLog,
+  Booking,
+  Grievance,
   Journey,
   JourneyTracking,
   Person,
   Preferences,
   SavedSearch,
+  TdrClaim,
   TrainWatch,
   UserProfile,
   ChatMessage,
+  Wallet,
+  WalletTransaction,
 } from '@/types';
 
 /**
@@ -65,12 +70,33 @@ export interface Repo {
   addWatch(w: Omit<TrainWatch, 'id' | 'created_at' | 'fulfilled'>): Promise<TrainWatch>;
   removeWatch(id: string): Promise<void>;
 
+  /* cross-category bookings (flights, buses, hotels, cabs, packages, …) */
+  listBookings(): Promise<Booking[]>;
+  createBooking(b: Omit<Booking, 'id' | 'created_at'>): Promise<Booking>;
+  cancelBooking(id: string, reason: string): Promise<void>;
+
+  /* eWallet — a genuinely persisted balance and ledger (addendum §5) */
+  getWallet(): Promise<Wallet>;
+  listWalletTransactions(): Promise<WalletTransaction[]>;
+  addWalletTransaction(t: Omit<WalletTransaction, 'id' | 'created_at'>): Promise<Wallet>;
+
+  /* Rail Madad grievances */
+  listGrievances(): Promise<Grievance[]>;
+  fileGrievance(g: Omit<Grievance, 'id' | 'complaint_id' | 'created_at' | 'status'>): Promise<Grievance>;
+
+  /* TDR refund claims */
+  listTdrClaims(): Promise<TdrClaim[]>;
+  fileTdrClaim(c: Omit<TdrClaim, 'id' | 'tdr_id' | 'created_at' | 'status'>): Promise<TdrClaim>;
+
   /* tracking + audit */
   getTracking(pnr: string): Promise<JourneyTracking | null>;
   putTracking(t: JourneyTracking): Promise<void>;
   logAudit(a: Omit<AuditLog, 'id' | 'timestamp'>): Promise<void>;
   listAudit(limit?: number): Promise<AuditLog[]>;
 }
+
+/** Seeded starting balance, matching the header chip in the reference. */
+export const STARTING_WALLET_BALANCE = 1250;
 
 export const DEFAULT_PREFERENCES: Preferences = {
   preferred_class: '3A',

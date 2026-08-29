@@ -4,77 +4,147 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Canvas + ink — "cream paper surfaces" (Mossforge / Mosaic Press, uiverse)
-        canvas: {
-          DEFAULT: '#FBF9F4',
-          sunk: '#F4F1E9',
-          raised: '#FFFFFF',
+        /* IRCTC navy — sampled from the reference header, login panel, primary buttons */
+        navy: {
+          50: '#eef1f9',
+          100: '#d8dff0',
+          200: '#b0bee1',
+          300: '#7e91c9',
+          400: '#4d63ab',
+          500: '#2c4291',
+          600: '#1f3178',
+          700: '#1a2b6d',
+          800: '#152257',
+          900: '#0f1940',
+        },
+        /* Warm orange accent — "Starts Here", active Assistant nav, send button, Tatkal */
+        saffron: {
+          50: '#fff5eb',
+          100: '#ffe6cc',
+          200: '#ffcb99',
+          300: '#fdaa5c',
+          400: '#f9902f',
+          500: '#f5821f',
+          600: '#dd6c0d',
+          700: '#b5530a',
+          800: '#8a3f0c',
+          900: '#6b330d',
+        },
+        /* Surfaces — light grey-blue page, white cards */
+        page: '#f5f7fb',
+        surface: {
+          DEFAULT: '#ffffff',
+          sunk: '#f8fafc',
+          tint: '#eef2fa',
+        },
+        line: {
+          DEFAULT: '#e5e9f2',
+          strong: '#d3daea',
         },
         ink: {
-          DEFAULT: '#12211E',
-          muted: '#5A6B66',
-          faint: '#8D9A96',
+          DEFAULT: '#1a2233',
+          muted: '#5b6779',
+          faint: '#8b95a7',
         },
-        // Hairline rules instead of shadows — SearchSystem / North signage systems
-        rule: {
-          DEFAULT: '#E2DDD1',
-          strong: '#CFC8B7',
-        },
-        // The single charged accent
-        teal: {
-          50: '#EAF3F1',
-          100: '#CFE3DF',
-          200: '#A2C8C1',
-          300: '#6FA79E',
-          400: '#3F857A',
-          500: '#1F6A5E',
-          600: '#0F5F53',
-          700: '#0B4F45',
-          800: '#083A33',
-          900: '#052722',
-        },
-        // Semantic only — never decoration (master prompt §4)
-        confirmed: { DEFAULT: '#1E7A4C', soft: '#E6F2EA', ink: '#0E4A2C' },
-        attention: { DEFAULT: '#B8730A', soft: '#FBF0DC', ink: '#6E4404' },
-        critical: { DEFAULT: '#B3261E', soft: '#FAE7E5', ink: '#6B1712' },
-        info: { DEFAULT: '#1B5FA8', soft: '#E5EFF9', ink: '#0F3A67' },
+        /* Semantic — matched to the reference badges */
+        confirmed: { DEFAULT: '#16a34a', soft: '#dcfce7', ink: '#166534' },
+        attention: { DEFAULT: '#ea580c', soft: '#ffedd5', ink: '#9a3412' },
+        critical: { DEFAULT: '#dc2626', soft: '#fee2e2', ink: '#991b1b' },
+        info: { DEFAULT: '#2563eb', soft: '#dbeafe', ink: '#1e40af' },
       },
       fontFamily: {
-        display: ['"Instrument Serif"', 'Iowan Old Style', 'Georgia', 'serif'],
-        sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
+        sans: [
+          'Inter',
+          'system-ui',
+          '-apple-system',
+          'Segoe UI',
+          'Roboto',
+          'Helvetica Neue',
+          'sans-serif',
+        ],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
       },
       fontSize: {
-        // Mono uppercase micro-labels — DEPARTS / PLATFORM / COACH
-        label: ['0.6875rem', { lineHeight: '1rem', letterSpacing: '0.12em' }],
-        'label-lg': ['0.75rem', { lineHeight: '1.125rem', letterSpacing: '0.1em' }],
+        label: ['0.6875rem', { lineHeight: '1rem', letterSpacing: '0.08em' }],
+        'label-lg': ['0.75rem', { lineHeight: '1.125rem', letterSpacing: '0.06em' }],
       },
       borderRadius: {
-        card: '0.875rem',
-        finish: '1.25rem',
+        card: '0.75rem',
+        tile: '0.625rem',
+      },
+      boxShadow: {
+        card: '0 1px 2px rgba(26, 43, 109, 0.04), 0 1px 3px rgba(26, 43, 109, 0.06)',
+        lift: '0 6px 16px rgba(26, 43, 109, 0.10), 0 2px 6px rgba(26, 43, 109, 0.06)',
+        panel: '0 12px 40px rgba(15, 25, 64, 0.16)',
       },
       transitionTimingFunction: {
-        // Fast and calm. Never sacrifice speed for animation (master prompt §1).
         rail: 'cubic-bezier(0.22, 1, 0.36, 1)',
       },
       keyframes: {
-        'rail-shimmer': {
-          '0%': { transform: 'translateX(-100%)' },
-          '100%': { transform: 'translateX(200%)' },
+        'shine-slide': {
+          '0%': { transform: 'translateX(-120%) skewX(-18deg)' },
+          '100%': { transform: 'translateX(320%) skewX(-18deg)' },
         },
-        'dot-pulse': {
-          '0%, 100%': { opacity: '0.25', transform: 'scale(0.82)' },
-          '50%': { opacity: '1', transform: 'scale(1)' },
+        'live-pulse': {
+          '0%': { transform: 'scale(0.9)', opacity: '0.7' },
+          '70%': { transform: 'scale(2.1)', opacity: '0' },
+          '100%': { transform: 'scale(2.1)', opacity: '0' },
         },
         'rise-in': {
-          from: { opacity: '0', transform: 'translateY(6px)' },
+          from: { opacity: '0', transform: 'translateY(8px)' },
           to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        'slide-in-left': {
+          from: { opacity: '0', transform: 'translateX(-10px)' },
+          to: { opacity: '1', transform: 'translateX(0)' },
+        },
+        'slide-in-right': {
+          from: { opacity: '0', transform: 'translateX(10px)' },
+          to: { opacity: '1', transform: 'translateX(0)' },
+        },
+        /* Login hero: the locomotive drawing into the platform, then idling */
+        'train-arrive': {
+          '0%': { transform: 'translateX(-46%) scale(1.02)' },
+          '100%': { transform: 'translateX(0) scale(1)' },
+        },
+        'train-idle': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-1.5px)' },
+        },
+        'rail-sweep': {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-180px)' },
+        },
+        'wire-drift': {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-240px)' },
+        },
+        'steam-rise': {
+          '0%': { opacity: '0', transform: 'translateY(4px) scale(0.7)' },
+          '35%': { opacity: '0.5' },
+          '100%': { opacity: '0', transform: 'translateY(-26px) scale(1.5)' },
+        },
+        'sun-glow': {
+          '0%, 100%': { opacity: '0.55' },
+          '50%': { opacity: '0.8' },
+        },
+        'spin-slow': {
+          to: { transform: 'rotate(360deg)' },
         },
       },
       animation: {
-        'rail-shimmer': 'rail-shimmer 1.6s ease-in-out infinite',
-        'dot-pulse': 'dot-pulse 1.1s ease-in-out infinite',
-        'rise-in': 'rise-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) both',
+        'shine-slide': 'shine-slide 0.6s ease-out',
+        'live-pulse': 'live-pulse 1.8s ease-out infinite',
+        'rise-in': 'rise-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both',
+        'slide-in-left': 'slide-in-left 0.18s cubic-bezier(0.22, 1, 0.36, 1) both',
+        'slide-in-right': 'slide-in-right 0.18s cubic-bezier(0.22, 1, 0.36, 1) both',
+        'train-arrive': 'train-arrive 5.5s cubic-bezier(0.16, 0.8, 0.24, 1) both',
+        'train-idle': 'train-idle 3.2s ease-in-out 5.5s infinite',
+        'rail-sweep': 'rail-sweep 1.1s linear infinite',
+        'wire-drift': 'wire-drift 6s linear infinite',
+        'steam-rise': 'steam-rise 3.4s ease-out infinite',
+        'sun-glow': 'sun-glow 6s ease-in-out infinite',
+        'spin-slow': 'spin-slow 1.1s linear infinite',
       },
     },
   },

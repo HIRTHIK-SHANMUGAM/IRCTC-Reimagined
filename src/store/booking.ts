@@ -6,7 +6,10 @@ import type {
   Person,
   RankedTrain,
   SearchQuery,
+  Train,
+  TravelClass,
 } from '@/types';
+import { availabilityFor } from '@/engine/availability';
 
 /**
  * The booking draft. The agent may fill every field here — that is the amber
@@ -34,6 +37,8 @@ interface BookingState {
   setPaymentMethod: (m: string) => void;
   setPaymentState: (s: PaymentState | null) => void;
   markPrepared: (v: boolean) => void;
+  /** Sets the query and selection in one step when a train row is picked. */
+  start: (q: SearchQuery, train: Train, cls: TravelClass) => void;
   reset: () => void;
 }
 
@@ -65,6 +70,22 @@ export const useBooking = create<BookingState>((set, get) => ({
   setPaymentMethod: (paymentMethod) => set({ paymentMethod }),
   setPaymentState: (paymentState) => set({ paymentState }),
   markPrepared: (preparedByAgent) => set({ preparedByAgent }),
+
+  start: (query, train, cls) => {
+    const availability = availabilityFor(train, cls, query.date);
+    set({
+      query: { ...query, travel_class: cls },
+      selection: {
+        train,
+        travel_class: cls,
+        price: availability.price,
+        availability,
+        score: 1,
+        reasons: [],
+      },
+      preparedByAgent: false,
+    });
+  },
   reset: () =>
     set({
       query: null,

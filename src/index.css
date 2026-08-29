@@ -13,49 +13,112 @@
   }
 
   body {
-    @apply bg-canvas text-ink font-sans antialiased;
-    /* Faint paper tooth — the "cream paper surface" from the uiverse kits,
-       kept under 2% so it never reads as texture on a phone. */
-    background-image: radial-gradient(circle at 1px 1px, rgba(18, 33, 30, 0.022) 1px, transparent 0);
-    background-size: 22px 22px;
+    @apply bg-page text-ink font-sans antialiased;
   }
 
-  /* Numerals are the loudest element on a card — SearchSystem/North signage. */
+  /* Times, fares, PNRs, seat counts — always aligned */
   .tnum {
     font-variant-numeric: tabular-nums;
     font-feature-settings: 'tnum' 1;
   }
 
   :focus-visible {
-    @apply outline-none ring-2 ring-teal-600 ring-offset-2 ring-offset-canvas;
+    @apply outline-none ring-2 ring-navy-500 ring-offset-2 ring-offset-page;
   }
 
   ::selection {
-    @apply bg-teal-100 text-teal-900;
+    @apply bg-navy-100 text-navy-900;
   }
 }
 
 @layer components {
-  /* Mono uppercase micro-label: DEPARTS · PLATFORM · COACH */
   .label {
-    @apply font-mono text-label uppercase text-ink-faint;
+    @apply text-label font-semibold uppercase text-ink-faint;
   }
 
   .label-ink {
-    @apply font-mono text-label uppercase text-ink-muted;
+    @apply text-label font-semibold uppercase text-ink-muted;
   }
 
-  /* Hairline card. Rules, not shadows. */
+  /* The standard white card from the reference: soft border + soft shadow */
   .card {
-    @apply rounded-card border border-rule bg-canvas-raised;
+    @apply rounded-card border border-line bg-surface shadow-card;
   }
 
   .card-sunk {
-    @apply rounded-card border border-rule bg-canvas-sunk;
+    @apply rounded-card border border-line bg-surface-sunk;
   }
 
-  .hairline {
-    @apply border-t border-rule;
+  /*
+   * Hover "shine slide" — a soft diagonal streak that sweeps across a button
+   * on hover (§6). Applied via .shine on any relatively-positioned element
+   * with overflow hidden. Kept at ~600ms and low opacity so it reads as a
+   * sheen, never as neon.
+   */
+  .shine {
+    @apply relative overflow-hidden;
+  }
+  .shine::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 45%;
+    pointer-events: none;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.32) 50%,
+      transparent 100%
+    );
+    transform: translateX(-120%) skewX(-18deg);
+    opacity: 0;
+  }
+  .shine:hover::after,
+  .shine:focus-visible::after {
+    opacity: 1;
+    animation: shine-slide 0.6s ease-out;
+  }
+  /* Over light surfaces the white streak is invisible — tint it navy instead */
+  .shine-dark::after {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(26, 43, 109, 0.09) 50%,
+      transparent 100%
+    );
+  }
+
+  /* Clickable card: small lift + deeper shadow, fast (§6) */
+  .lift {
+    @apply transition-[transform,box-shadow] duration-150 ease-rail;
+  }
+  .lift:hover {
+    @apply -translate-y-0.5 shadow-lift;
+  }
+
+  /* Left-nav row */
+  .nav-item {
+    @apply flex items-center gap-2.5 rounded-tile px-3 py-[0.4375rem] text-[0.8125rem] font-medium
+           text-ink-muted transition-colors duration-150;
+  }
+  .nav-item:hover {
+    @apply bg-navy-50 text-navy-700;
+  }
+  .nav-item-active {
+    @apply bg-navy-700 text-white shadow-card;
+  }
+  .nav-item-active:hover {
+    @apply bg-navy-700 text-white;
+  }
+  .nav-section {
+    @apply px-3 pb-1 pt-3.5 text-[0.625rem] font-bold uppercase tracking-[0.08em] text-ink-faint;
+  }
+
+  /* Soft two-tone icon tile used across nav, quick actions and tool rows */
+  .icon-tile {
+    @apply grid place-items-center rounded-tile bg-navy-50 text-navy-700;
   }
 }
 
@@ -70,29 +133,41 @@
   .safe-b {
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
+  /* Result rows stagger in ~40ms apart (§6) */
+  .stagger > * {
+    animation: rise-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .stagger > *:nth-child(1) { animation-delay: 0ms; }
+  .stagger > *:nth-child(2) { animation-delay: 40ms; }
+  .stagger > *:nth-child(3) { animation-delay: 80ms; }
+  .stagger > *:nth-child(4) { animation-delay: 120ms; }
+  .stagger > *:nth-child(5) { animation-delay: 160ms; }
+  .stagger > *:nth-child(6) { animation-delay: 200ms; }
+  .stagger > *:nth-child(7) { animation-delay: 240ms; }
+  .stagger > *:nth-child(8) { animation-delay: 280ms; }
+  .stagger > *:nth-child(n + 9) { animation-delay: 320ms; }
 }
 
-/* High-contrast mode (accessibility panel) */
+/* High-contrast mode */
 html[data-contrast='high'] body {
-  background-image: none;
   @apply bg-white;
 }
 html[data-contrast='high'] .card,
 html[data-contrast='high'] .card-sunk {
-  @apply border-ink;
+  @apply border-ink shadow-none;
 }
 html[data-contrast='high'] .label,
 html[data-contrast='high'] .label-ink {
   @apply text-ink;
 }
 
-/* Elder / Simple mode — huge targets, one decision per screen */
+/* Elder / Simple mode — bigger type, bigger targets */
 html[data-elder='true'] {
-  --ri-scale: 1.2;
+  --ri-scale: 1.15;
 }
 html[data-elder='true'] button,
 html[data-elder='true'] a[role='button'] {
-  min-height: 3.5rem;
+  min-height: 3.25rem;
 }
 
 @media (prefers-reduced-motion: reduce) {

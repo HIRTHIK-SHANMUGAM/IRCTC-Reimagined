@@ -44,7 +44,7 @@ export function Explore() {
 
   const open = (to: string) => {
     setQuery({ from: origin, to, date, quota: 'General', passengers: 1 });
-    navigate('/search');
+    navigate('/trains');
   };
 
   const FILTERS: { id: Filter; label: string; Icon: typeof Moon }[] = [
@@ -59,7 +59,7 @@ export function Explore() {
   return (
     <div className="space-y-8">
       <header>
-        <h1 className="font-display text-4xl leading-tight">{t('explore.title')}</h1>
+        <h1 className="font-extrabold tracking-tight text-4xl leading-tight">{t('explore.title')}</h1>
         <p className="mt-2 text-[0.9375rem] text-ink-muted">
           {t('explore.subtitle', { city: L(getStation(origin)?.city) })}
         </p>
@@ -87,7 +87,7 @@ export function Explore() {
               step={100}
               value={budget}
               onChange={(e) => setBudget(Number(e.target.value))}
-              className="h-12 w-full accent-teal-700"
+              className="h-12 w-full accent-navy-700"
             />
           </div>
         </div>
@@ -133,16 +133,16 @@ export function Explore() {
                   <button
                     type="button"
                     onClick={() => open(d.to)}
-                    className="card group flex h-full w-full flex-col p-5 text-left transition-colors hover:border-rule-strong"
+                    className="card group flex h-full w-full flex-col p-5 text-left transition-colors hover:border-line-strong"
                   >
                     {/* Each card gets its own quiet piece of generative art,
                         seeded from the station code so it is stable. */}
                     <DestinationArt seed={d.to} />
 
-                    <h3 className="mt-4 font-display text-xl leading-tight">{L(station?.city)}</h3>
+                    <h3 className="mt-4 font-extrabold tracking-tight text-xl leading-tight">{L(station?.city)}</h3>
                     <p className="label mt-1.5">{L(station?.name)}</p>
 
-                    <div className="mt-4 flex items-end justify-between gap-3 border-t border-rule pt-4">
+                    <div className="mt-4 flex items-end justify-between gap-3 border-t border-line pt-4">
                       <div>
                         <p className="tnum text-lg font-semibold leading-none">{rupees(d.cheapest)}</p>
                         <p className="label mt-1.5">
@@ -184,7 +184,7 @@ function DestinationArt({ seed }: { seed: string }) {
   }));
 
   return (
-    <div className="h-24 w-full overflow-hidden rounded-lg bg-teal-50">
+    <div className="h-24 w-full overflow-hidden rounded-lg bg-navy-50">
       <svg viewBox="0 0 200 90" className="h-full w-full" aria-hidden="true" preserveAspectRatio="none">
         <circle cx={30 + rand(2) * 140} cy={22} r={12} fill="#B8730A" opacity="0.2" />
         {bands.map((b, i) => (

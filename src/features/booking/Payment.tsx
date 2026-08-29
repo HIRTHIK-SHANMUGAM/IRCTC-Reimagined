@@ -40,7 +40,7 @@ export function Payment() {
 
   useEffect(() => {
     if (!selection || !query || passengers.length === 0) {
-      navigate('/book');
+      navigate('/trains');
       return;
     }
     if (started.current) return;
@@ -101,7 +101,7 @@ export function Payment() {
           journey_id: created.id,
         });
 
-        timers.push(setTimeout(() => !cancelled && navigate(`/book/success/${created.id}`), 900));
+        timers.push(setTimeout(() => !cancelled && navigate(`/trains/success/${created.id}`), 900));
         return;
       }
 
@@ -125,7 +125,7 @@ export function Payment() {
 
   return (
     <div className="mx-auto max-w-lg py-8">
-      <h1 className="font-display text-3xl leading-tight">{L(selection.train.name)}</h1>
+      <h1 className="font-extrabold tracking-tight text-3xl leading-tight">{L(selection.train.name)}</h1>
       <p className="label mt-2">
         {selection.train.number} · {t(`classes.${selection.travel_class}`)}
       </p>
@@ -146,27 +146,27 @@ export function Payment() {
                     done
                       ? 'border-confirmed bg-confirmed text-white'
                       : active
-                        ? 'border-teal-700 bg-canvas'
-                        : 'border-rule-strong bg-canvas',
+                        ? 'border-navy-700 bg-page'
+                        : 'border-line-strong bg-page',
                   )}
                 >
                   {done ? (
                     <Check className="h-4 w-4" aria-hidden="true" />
                   ) : active ? (
                     <motion.span
-                      className="block h-2.5 w-2.5 rounded-full bg-teal-700"
+                      className="block h-2.5 w-2.5 rounded-full bg-navy-700"
                       animate={{ scale: [1, 0.6, 1], opacity: [1, 0.5, 1] }}
                       transition={{ duration: 1.1, repeat: Infinity, ease: 'easeInOut' }}
                     />
                   ) : (
-                    <span className="block h-2 w-2 rounded-full bg-rule-strong" />
+                    <span className="block h-2 w-2 rounded-full bg-line-strong" />
                   )}
                 </span>
                 {i < STAGES.length - 1 && (
                   <span
                     className={cx(
                       'my-1 w-[2px] flex-1 rounded-full transition-colors duration-300',
-                      done ? 'bg-confirmed' : 'bg-rule',
+                      done ? 'bg-confirmed' : 'bg-line',
                     )}
                     style={{ minHeight: '1.75rem' }}
                   />
@@ -201,7 +201,7 @@ export function Payment() {
           <Alert tone="critical" title={t('payment.failed')} icon={<AlertTriangle className="h-4 w-4" />}>
             {t('payment.failedBody')}
           </Alert>
-          <Button full onClick={() => navigate('/book/review')}>
+          <Button full onClick={() => navigate('/trains/review')}>
             {t('payment.tryAgain')}
           </Button>
         </div>

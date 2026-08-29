@@ -26,8 +26,8 @@ export function BookingSummary() {
 
   return (
     <aside className="card sticky top-24 overflow-hidden">
-      <div className="border-b border-rule p-5">
-        <h2 className="font-display text-xl leading-tight">{L(selection.train.name)}</h2>
+      <div className="border-b border-line p-5">
+        <h2 className="font-extrabold tracking-tight text-xl leading-tight">{L(selection.train.name)}</h2>
         <p className="label mt-1.5">
           {selection.train.number} · {t(`classes.${selection.travel_class}`)}
         </p>
@@ -73,7 +73,7 @@ export function BookingSummary() {
           <dt className="text-ink-muted">{t('booking.insurance')}</dt>
           <dd className="tnum">{rupees(fare.insurance)}</dd>
         </div>
-        <div className="flex justify-between gap-4 border-t border-rule pt-3">
+        <div className="flex justify-between gap-4 border-t border-line pt-3">
           <dt className="font-medium">{t('booking.total')}</dt>
           <dd className="tnum text-lg font-semibold">{rupees(fare.total)}</dd>
         </div>

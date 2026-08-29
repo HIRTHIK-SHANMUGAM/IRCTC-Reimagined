@@ -1,139 +1,145 @@
-import { useTranslation } from 'react-i18next';
-import { AnimatePresence, motion } from 'framer-motion';
-import { AlertTriangle, Bell, CheckCheck, Info, TriangleAlert, X } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import { AlertTriangle, Bell, Clock, MapPin, Radio, Tag } from 'lucide-react';
 import type { AppNotification } from '@/types';
-import { useSession, upcomingJourneys } from '@/store/session';
-import { Badge, Button, cx } from '@/components/ui';
+import { useSession } from '@/store/session';
+import { Badge, cx } from '@/components/ui';
 
-const PRIORITY_META = {
-  critical: { tone: 'critical', Icon: TriangleAlert },
-  important: { tone: 'attention', Icon: AlertTriangle },
-  useful: { tone: 'info', Icon: Info },
-  marketing: { tone: 'neutral', Icon: Bell },
+const ICON: Record<string, typeof Bell> = {
+  cancelled: AlertTriangle,
+  platform_change: MapPin,
+  delay: Clock,
+  arriving_soon: Radio,
+  arrived: MapPin,
+  departing: Clock,
+  chart_prepared: Bell,
+  watch_hit: Bell,
+  promo: Tag,
+};
+
+const TONE = {
+  critical: 'critical',
+  important: 'attention',
+  useful: 'info',
+  marketing: 'neutral',
 } as const;
 
-function timeAgo(ts: number): string {
-  const mins = Math.round((Date.now() - ts) / 60000);
-  if (mins < 1) return 'just now';
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.round(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  return `${Math.round(hrs / 24)}d ago`;
+function ago(ts: number): string {
+  const m = Math.round((Date.now() - ts) / 60000);
+  if (m < 1) return 'just now';
+  if (m < 60) return `${m} min ago`;
+  const h = Math.round(m / 60);
+  if (h < 24) return `${h} hr ago`;
+  return `${Math.round(h / 24)} d ago`;
 }
 
+/**
+ * The alerts drawer. Notifications carry a priority tier so a platform change
+ * never arrives looking like a promotion (master prompt §9).
+ */
 export function NotificationPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
   const notifications = useSession((s) => s.notifications);
-  const journeys = useSession((s) => s.journeys);
   const markRead = useSession((s) => s.markRead);
   const markAllRead = useSession((s) => s.markAllRead);
+  const ref = useRef<HTMLDivElement>(null);
 
-  // No marketing during an active journey. The system knows you are travelling
-  // and stays quiet except for what matters (master prompt §9).
-  const travelling = upcomingJourneys(journeys).some((j) => j.journey_date <= new Date().toISOString().slice(0, 10));
-  const visible = notifications.filter((n) => !(travelling && n.priority === 'marketing'));
+  useEffect(() => {
+    if (!open) return;
+    const onDoc = (e: MouseEvent) => {
+      if (!ref.current?.contains(e.target as Node)) onClose();
+    };
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    document.addEventListener('mousedown', onDoc);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDoc);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open, onClose]);
 
-  const onOpen = (n: AppNotification) => {
-    void markRead(n.id);
-    if (n.journey_id) navigate(`/trips?journey=${n.journey_id}`);
-    onClose();
-  };
+  if (!open) return null;
+
+  const unread = notifications.filter((n) => !n.read).length;
 
   return (
-    <AnimatePresence>
-      {open && (
-        <div className="fixed inset-0 z-50">
-          <motion.div
-            className="absolute inset-0 bg-ink/20 backdrop-blur-[2px]"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.18 }}
-            onClick={onClose}
-          />
-          <motion.aside
-            role="dialog"
-            aria-label={t('notifications.title')}
-            className="absolute inset-y-0 right-0 flex w-full max-w-md flex-col border-l border-rule bg-canvas"
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+    <div
+      ref={ref}
+      className="absolute right-0 top-full z-40 mt-2 w-[22rem] max-w-[calc(100vw-2rem)] animate-rise-in
+                 overflow-hidden rounded-card border border-line bg-surface shadow-panel"
+    >
+      <div className="flex items-center justify-between border-b border-line px-4 py-3">
+        <p className="text-[0.9375rem] font-bold text-ink">Alerts</p>
+        {unread > 0 && (
+          <button
+            type="button"
+            onClick={() => void markAllRead()}
+            className="text-[0.75rem] font-bold text-navy-600 hover:text-navy-700"
           >
-            <header className="flex items-center justify-between border-b border-rule px-5 py-4">
-              <h2 className="font-display text-2xl">{t('notifications.title')}</h2>
-              <button
-                type="button"
-                onClick={onClose}
-                aria-label={t('common.close')}
-                className="rounded-full p-2 text-ink-faint transition-colors hover:bg-canvas-sunk hover:text-ink"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </header>
+            Mark all read
+          </button>
+        )}
+      </div>
 
-            <div className="flex-1 overflow-y-auto">
-              {visible.length === 0 ? (
-                <div className="px-5 py-16 text-center">
-                  <CheckCheck className="mx-auto h-8 w-8 text-ink-faint" aria-hidden="true" />
-                  <p className="mt-4 text-ink-muted">{t('notifications.empty')}</p>
-                </div>
-              ) : (
-                <ul>
-                  {visible.map((n) => {
-                    const meta = PRIORITY_META[n.priority];
-                    return (
-                      <li key={n.id}>
-                        <button
-                          type="button"
-                          onClick={() => onOpen(n)}
-                          className={cx(
-                            'flex w-full gap-3 border-b border-rule px-5 py-4 text-left transition-colors hover:bg-canvas-sunk',
-                            !n.read && 'bg-canvas-raised',
-                          )}
-                        >
-                          <meta.Icon
-                            className={cx(
-                              'mt-0.5 h-4 w-4 shrink-0',
-                              n.priority === 'critical'
-                                ? 'text-critical'
-                                : n.priority === 'important'
-                                  ? 'text-attention'
-                                  : 'text-info',
-                            )}
-                            aria-hidden="true"
-                          />
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-start justify-between gap-3">
-                              <p className={cx('text-[0.9375rem]', !n.read && 'font-medium')}>{n.title}</p>
-                              {!n.read && <span className="mt-2 block h-2 w-2 shrink-0 rounded-full bg-teal-700" />}
-                            </div>
-                            <p className="mt-1 text-sm leading-snug text-ink-muted">{n.body}</p>
-                            <div className="mt-2 flex items-center gap-2">
-                              <Badge tone={meta.tone}>{t(`notifications.${n.priority}`, n.priority)}</Badge>
-                              <span className="label">{timeAgo(n.created_at)}</span>
-                            </div>
-                          </div>
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </div>
+      <div className="max-h-[24rem] overflow-y-auto">
+        {notifications.length === 0 ? (
+          <p className="px-4 py-10 text-center text-[0.875rem] text-ink-muted">
+            Nothing needs your attention right now.
+          </p>
+        ) : (
+          <ul className="divide-y divide-line">
+            {notifications.slice(0, 20).map((n: AppNotification) => {
+              const Icon = ICON[n.type] ?? Bell;
+              return (
+                <li key={n.id}>
+                  <button
+                    type="button"
+                    onClick={() => void markRead(n.id)}
+                    className={cx(
+                      'flex w-full gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-sunk',
+                      !n.read && 'bg-navy-50/50',
+                    )}
+                  >
+                    <Icon
+                      className={cx(
+                        'mt-0.5 h-4 w-4 shrink-0',
+                        n.priority === 'critical'
+                          ? 'text-critical'
+                          : n.priority === 'important'
+                            ? 'text-attention'
+                            : 'text-ink-faint',
+                      )}
+                      aria-hidden="true"
+                    />
+                    <span className="min-w-0 flex-1">
+                      <span className="flex items-center gap-2">
+                        <span className="truncate text-[0.875rem] font-semibold text-ink">{n.title}</span>
+                        {!n.read && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-navy-600" />}
+                      </span>
+                      <span className="mt-0.5 block text-[0.8125rem] leading-snug text-ink-muted">
+                        {n.body}
+                      </span>
+                      <span className="mt-1.5 flex items-center gap-2">
+                        <Badge tone={TONE[n.priority]}>{n.priority}</Badge>
+                        <span className="text-[0.6875rem] text-ink-faint">{ago(n.created_at)}</span>
+                      </span>
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
 
-            {visible.some((n) => !n.read) && (
-              <div className="border-t border-rule p-4">
-                <Button variant="secondary" full onClick={() => void markAllRead()}>
-                  {t('notifications.markAllRead')}
-                </Button>
-              </div>
-            )}
-          </motion.aside>
-        </div>
-      )}
-    </AnimatePresence>
+      <div className="border-t border-line px-4 py-2.5">
+        <Link
+          to="/live-status"
+          onClick={onClose}
+          className="text-[0.8125rem] font-bold text-navy-600 hover:text-navy-700"
+        >
+          Track a train →
+        </Link>
+      </div>
+    </div>
   );
 }

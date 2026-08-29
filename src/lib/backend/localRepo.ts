@@ -1,16 +1,21 @@
 import type {
   AppNotification,
   AuditLog,
+  Booking,
   ChatMessage,
+  Grievance,
   Journey,
   JourneyTracking,
   Person,
   Preferences,
   SavedSearch,
+  TdrClaim,
   TrainWatch,
   UserProfile,
+  Wallet,
+  WalletTransaction,
 } from '@/types';
-import { DEFAULT_PREFERENCES, type Repo } from './types';
+import { DEFAULT_PREFERENCES, STARTING_WALLET_BALANCE, type Repo } from './types';
 import { aadhaarRef, randomId } from '@/lib/hash';
 
 /**
@@ -33,6 +38,11 @@ interface Bucket {
   watches: TrainWatch[];
   tracking: Record<string, JourneyTracking>;
   audit: AuditLog[];
+  bookings: Booking[];
+  wallet: Wallet;
+  walletTxns: WalletTransaction[];
+  grievances: Grievance[];
+  tdr: TdrClaim[];
 }
 
 interface Store {
@@ -83,16 +93,29 @@ function mutate<T>(fn: (b: Bucket, s: Store) => T): T {
   const s = read();
   const b = activeBucket(s);
   if (!b) throw new Error('Not signed in');
-  const result = fn(b, s);
+  const result = fn(hydrate(b), s);
   write(s);
   return result;
+}
+
+/**
+ * Buckets written before the multi-category release lack the newer
+ * collections, so every accessor backfills them rather than throwing.
+ */
+function hydrate(b: Bucket): Bucket {
+  b.bookings ??= [];
+  b.walletTxns ??= [];
+  b.grievances ??= [];
+  b.tdr ??= [];
+  b.wallet ??= { balance: STARTING_WALLET_BALANCE, updated_at: Date.now() };
+  return b;
 }
 
 function requireBucket(): Bucket {
   const s = read();
   const b = activeBucket(s);
   if (!b) throw new Error('Not signed in');
-  return b;
+  return hydrate(b);
 }
 
 export const localRepo: Repo = {
@@ -134,6 +157,19 @@ export const localRepo: Repo = {
         watches: [],
         tracking: {},
         audit: [],
+        bookings: [],
+        wallet: { balance: STARTING_WALLET_BALANCE, updated_at: Date.now() },
+        walletTxns: [
+          {
+            id: randomId('wt'),
+            kind: 'credit',
+            amount: STARTING_WALLET_BALANCE,
+            note: 'Welcome balance',
+            created_at: Date.now(),
+          },
+        ],
+        grievances: [],
+        tdr: [],
       };
       // The account holder is always the first travel person.
       bucket.people.push({
@@ -347,6 +383,100 @@ export const localRepo: Repo = {
 
   async listAudit(limit = 30) {
     return requireBucket().audit.slice(0, limit);
+  },
+
+  /* ---------------------------------------------------------- bookings */
+
+  async listBookings() {
+    return [...requireBucket().bookings].sort((a, b) => b.created_at - a.created_at);
+  },
+
+  async createBooking(b) {
+    return mutate((bucket) => {
+      const booking: Booking = { ...b, id: randomId('bk'), created_at: Date.now() };
+      bucket.bookings.push(booking);
+      return booking;
+    });
+  },
+
+  async cancelBooking(id, reason) {
+    mutate((bucket) => {
+      bucket.bookings = bucket.bookings.map((b) =>
+        b.id === id
+          ? {
+              ...b,
+              status: 'cancelled' as const,
+              cancelled_at: Date.now(),
+              cancellation_reason: reason,
+              refund_status: 'initiated' as const,
+              refund_amount: Math.round(b.total * 0.8),
+            }
+          : b,
+      );
+    });
+  },
+
+  /* ------------------------------------------------------------ wallet */
+
+  async getWallet() {
+    return { ...requireBucket().wallet };
+  },
+
+  async listWalletTransactions() {
+    return [...requireBucket().walletTxns].sort((a, b) => b.created_at - a.created_at);
+  },
+
+  async addWalletTransaction(t) {
+    return mutate((bucket) => {
+      const txn: WalletTransaction = { ...t, id: randomId('wt'), created_at: Date.now() };
+      bucket.walletTxns.push(txn);
+      const delta = t.kind === 'credit' ? t.amount : -t.amount;
+      bucket.wallet = {
+        balance: Math.max(0, Math.round((bucket.wallet.balance + delta) * 100) / 100),
+        updated_at: Date.now(),
+      };
+      return { ...bucket.wallet };
+    });
+  },
+
+  /* -------------------------------------------------------- grievances */
+
+  async listGrievances() {
+    return [...requireBucket().grievances].sort((a, b) => b.created_at - a.created_at);
+  },
+
+  async fileGrievance(g) {
+    return mutate((bucket) => {
+      const grievance: Grievance = {
+        ...g,
+        id: randomId('gr'),
+        complaint_id: 'RM' + String(Math.floor(1e8 + Math.random() * 9e8)),
+        status: 'filed',
+        created_at: Date.now(),
+      };
+      bucket.grievances.push(grievance);
+      return grievance;
+    });
+  },
+
+  /* --------------------------------------------------------------- TDR */
+
+  async listTdrClaims() {
+    return [...requireBucket().tdr].sort((a, b) => b.created_at - a.created_at);
+  },
+
+  async fileTdrClaim(c) {
+    return mutate((bucket) => {
+      const claim: TdrClaim = {
+        ...c,
+        id: randomId('td'),
+        tdr_id: 'TDR' + String(Math.floor(1e7 + Math.random() * 9e7)),
+        status: 'filed',
+        created_at: Date.now(),
+      };
+      bucket.tdr.push(claim);
+      return claim;
+    });
   },
 };
 

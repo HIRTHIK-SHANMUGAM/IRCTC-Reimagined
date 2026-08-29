@@ -21,6 +21,28 @@ service cloud.firestore {
       match /saved_searches/{savedId} { allow read, write: if isOwner(userId); }
       match /watches/{watchId}        { allow read, write: if isOwner(userId); }
 
+      // Cross-category bookings: flights, buses, hotels, cabs, packages,
+      // activities, food, retiring rooms and lounges (addendum §5).
+      match /bookings/{bookingId}     { allow read, write: if isOwner(userId); }
+
+      // eWallet. The balance doc and its append-only ledger.
+      match /wallet/{docId}           { allow read, write: if isOwner(userId); }
+      match /wallet_transactions/{txnId} {
+        allow read, create: if isOwner(userId);
+        allow update, delete: if false;
+      }
+
+      // Rail Madad grievances and TDR refund claims. The client files them;
+      // only a function (admin SDK) advances the status.
+      match /grievances/{caseId} {
+        allow read, create: if isOwner(userId);
+        allow update, delete: if false;
+      }
+      match /tdr_claims/{claimId} {
+        allow read, create: if isOwner(userId);
+        allow update, delete: if false;
+      }
+
       // Notifications are written by Cloud Functions (admin SDK bypasses rules).
       // The client may only mark one read.
       match /notifications/{notifId} {
