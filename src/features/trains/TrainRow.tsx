@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ChevronDown, Heart } from 'lucide-react';
 import type { Train, TravelClass } from '@/types';
 import { availabilityFor, availabilityLabel } from '@/engine/availability';
@@ -38,6 +39,7 @@ export function TrainRow({
   onWatch?: (t: Train) => void;
   watched?: boolean;
 }) {
+  const { t } = useTranslation();
   const { L } = useLocalized();
   const [routeOpen, setRouteOpen] = useState(false);
   const [showAllClasses, setShowAllClasses] = useState(false);
@@ -90,7 +92,7 @@ export function TrainRow({
               </button>
             )}
             <div className="text-right">
-              <p className="text-[0.6875rem] font-semibold uppercase text-ink-faint">Starting from</p>
+              <p className="text-[0.6875rem] font-semibold uppercase text-ink-faint">{t('ui.startingFrom')}</p>
               <p className="tnum text-[1.0625rem] font-extrabold text-ink">
                 {Number.isFinite(cheapest) ? rupees(cheapest) : '—'}
               </p>
@@ -143,7 +145,7 @@ export function TrainRow({
           </div>
 
           <Button size="sm" onClick={() => onSelect(train, visible[0]?.cls ?? '3A')}>
-            View Options
+            {t('ui.viewOptions')}
           </Button>
         </div>
 
@@ -203,7 +205,7 @@ export function TrainRow({
           className="flex w-full items-center justify-between px-4 py-2.5 text-[0.8125rem] font-semibold
                      text-navy-600 transition-colors hover:bg-navy-50 sm:px-5"
         >
-          View route &amp; halts
+          {t('ui.viewRoute')}
           <ChevronDown className={cx('h-4 w-4 transition-transform', routeOpen && 'rotate-180')} />
         </button>
 

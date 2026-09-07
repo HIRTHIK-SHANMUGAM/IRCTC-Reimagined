@@ -29,6 +29,7 @@ import {
 export interface NavItem {
   /** Route path, or 'logout' for the sign-out action row. */
   to: string;
+  /** Key under `sidebar.*` in the translation tree. */
   label: string;
   icon: LucideIcon;
   /** The Assistant row is called out in orange (addendum §3). */
@@ -36,7 +37,7 @@ export interface NavItem {
 }
 
 export interface NavGroup {
-  /** Section label above the group; absent for the ungrouped top rows. */
+  /** Key under `sidebar.*` for the section label; absent for the top rows. */
   title?: string;
   items: NavItem[];
 }
@@ -48,49 +49,49 @@ export interface NavGroup {
  */
 export const NAV: NavGroup[] = [
   {
-    items: [{ to: '/', label: 'Home', icon: Home }],
+    items: [{ to: '/', label: 'home', icon: Home }],
   },
   {
-    title: 'Book & Travel',
+    title: 'bookTravel',
     items: [
-      { to: '/trains', label: 'Trains', icon: TrainFront },
-      { to: '/flights', label: 'Flights', icon: Plane },
-      { to: '/buses', label: 'Buses', icon: Bus },
-      { to: '/hotels', label: 'Hotels', icon: Building2 },
-      { to: '/packages', label: 'Holiday Packages', icon: Package },
-      { to: '/cabs', label: 'Cabs', icon: Car },
-      { to: '/assistant', label: 'Assistant', icon: Sparkles, accent: true },
-      { to: '/activities', label: 'Activities & Attractions', icon: ActivityIcon },
+      { to: '/trains', label: 'trains', icon: TrainFront },
+      { to: '/flights', label: 'flights', icon: Plane },
+      { to: '/buses', label: 'buses', icon: Bus },
+      { to: '/hotels', label: 'hotels', icon: Building2 },
+      { to: '/packages', label: 'packages', icon: Package },
+      { to: '/cabs', label: 'cabs', icon: Car },
+      { to: '/assistant', label: 'assistant', icon: Sparkles, accent: true },
+      { to: '/activities', label: 'activities', icon: ActivityIcon },
     ],
   },
   {
-    title: 'My Journeys',
+    title: 'myJourneys',
     items: [
-      { to: '/trips', label: 'My Trips', icon: Ticket },
-      { to: '/live-status', label: 'Live Status', icon: Radio },
-      { to: '/pnr', label: 'PNR Enquiry', icon: Search },
-      { to: '/cancelled', label: 'Cancelled Tickets', icon: Ban },
-      { to: '/tdr', label: 'TDR Status', icon: FileText },
+      { to: '/trips', label: 'trips', icon: Ticket },
+      { to: '/live-status', label: 'liveStatus', icon: Radio },
+      { to: '/pnr', label: 'pnr', icon: Search },
+      { to: '/cancelled', label: 'cancelled', icon: Ban },
+      { to: '/tdr', label: 'tdr', icon: FileText },
     ],
   },
   {
-    title: 'Food & Services',
+    title: 'foodServices',
     items: [
-      { to: '/food', label: 'Order Food on Train', icon: UtensilsCrossed },
-      { to: '/retiring-rooms', label: 'Retiring Rooms', icon: BedDouble },
-      { to: '/lounge', label: 'Lounge Access', icon: Armchair },
-      { to: '/rail-madad', label: 'Rail Madad', icon: LifeBuoy },
-      { to: '/wallet', label: 'IRCTC eWallet', icon: Wallet },
+      { to: '/food', label: 'food', icon: UtensilsCrossed },
+      { to: '/retiring-rooms', label: 'retiring', icon: BedDouble },
+      { to: '/lounge', label: 'lounge', icon: Armchair },
+      { to: '/rail-madad', label: 'railMadad', icon: LifeBuoy },
+      { to: '/wallet', label: 'wallet', icon: Wallet },
     ],
   },
   {
-    title: 'More',
+    title: 'more',
     items: [
-      { to: '/offers', label: 'Offers', icon: Percent },
-      { to: '/loyalty', label: 'Loyalty & Rewards', icon: Award },
-      { to: '/profile', label: 'Profile', icon: User },
-      { to: '/support', label: 'Support', icon: HelpCircle },
-      { to: 'logout', label: 'Log Out', icon: LogOut },
+      { to: '/offers', label: 'offers', icon: Percent },
+      { to: '/loyalty', label: 'loyalty', icon: Award },
+      { to: '/profile', label: 'profile', icon: User },
+      { to: '/support', label: 'support', icon: HelpCircle },
+      { to: 'logout', label: 'logout', icon: LogOut },
     ],
   },
 ];

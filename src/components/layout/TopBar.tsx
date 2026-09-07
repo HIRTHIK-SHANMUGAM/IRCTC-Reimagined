@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   Bell,
   ChevronDown,
@@ -39,6 +40,7 @@ function speechCtor(): SpeechCtor | null {
  * whenever a booking is paid for or the wallet is topped up.
  */
 export function TopBar({ onOpenNav }: { onOpenNav: () => void }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const user = useSession((s) => s.user);
   const wallet = useSession((s) => s.wallet);
@@ -108,8 +110,8 @@ export function TopBar({ onOpenNav }: { onOpenNav: () => void }) {
           <input
             value={ask}
             onChange={(e) => setAsk(e.target.value)}
-            aria-label="Ask anything"
-            placeholder={'Ask anything... e.g. "Bangalore tomorrow morning under ₹1000"'}
+            aria-label={t('ui.askPlaceholder')}
+            placeholder={t('ui.askPlaceholder')}
             className="h-11 w-full rounded-full border border-line-strong bg-surface-sunk pl-10 pr-11
                        text-[0.875rem] text-ink placeholder:text-ink-faint transition-colors
                        focus:border-navy-400 focus:bg-surface focus:outline-none focus:ring-2 focus:ring-navy-500/15"
@@ -117,7 +119,7 @@ export function TopBar({ onOpenNav }: { onOpenNav: () => void }) {
           <button
             type="button"
             onClick={startVoice}
-            aria-label="Search by voice"
+            aria-label={t('ui.searchVoice')}
             className={cx(
               'absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full transition-colors',
               listening ? 'bg-saffron-500 text-white' : 'text-ink-faint hover:bg-navy-50 hover:text-navy-700',
@@ -137,7 +139,7 @@ export function TopBar({ onOpenNav }: { onOpenNav: () => void }) {
             <button
               type="button"
               onClick={() => setBellOpen((v) => !v)}
-              aria-label={`Alerts${unread ? `, ${unread} unread` : ''}`}
+              aria-label={`${t('ui.alerts')}${unread ? `, ${unread}` : ''}`}
               className="group relative grid h-11 w-11 place-items-center rounded-lg text-ink-muted transition-colors hover:bg-navy-50 hover:text-navy-700"
             >
               <Bell className="h-[1.125rem] w-[1.125rem]" />
@@ -146,7 +148,7 @@ export function TopBar({ onOpenNav }: { onOpenNav: () => void }) {
                   {unread}
                 </span>
               )}
-              <span className="mt-0.5 hidden text-[0.625rem] font-semibold">Alerts</span>
+              <span className="mt-0.5 hidden text-[0.625rem] font-semibold">{t('ui.alerts')}</span>
             </button>
             <NotificationPanel open={bellOpen} onClose={() => setBellOpen(false)} />
           </div>
@@ -154,7 +156,7 @@ export function TopBar({ onOpenNav }: { onOpenNav: () => void }) {
           {/* my bookings */}
           <Link
             to="/trips"
-            aria-label="My Bookings"
+            aria-label={t('ui.myBookings')}
             className="hidden h-11 w-11 place-items-center rounded-lg text-ink-muted transition-colors hover:bg-navy-50 hover:text-navy-700 sm:grid"
           >
             <Ticket className="h-[1.125rem] w-[1.125rem]" />
@@ -167,7 +169,9 @@ export function TopBar({ onOpenNav }: { onOpenNav: () => void }) {
           >
             <Wallet className="h-4 w-4 text-navy-700" aria-hidden="true" />
             <span className="leading-none">
-              <span className="block text-[0.625rem] font-semibold text-ink-faint">IRCTC eWallet</span>
+              <span className="block text-[0.625rem] font-semibold text-ink-faint">
+                {t('sidebar.wallet')}
+              </span>
               <span className="tnum mt-0.5 block text-[0.8125rem] font-bold text-ink">
                 {rupees(wallet.balance)}
               </span>
@@ -190,7 +194,7 @@ export function TopBar({ onOpenNav }: { onOpenNav: () => void }) {
                   {user?.name ?? 'Traveller'}
                 </span>
                 <span className="mt-1 block text-[0.6875rem] font-medium text-saffron-600">
-                  Silver Member
+                  {t('ui.silverMember')}
                 </span>
               </span>
               <ChevronDown className="hidden h-4 w-4 text-ink-faint lg:block" aria-hidden="true" />
@@ -202,7 +206,7 @@ export function TopBar({ onOpenNav }: { onOpenNav: () => void }) {
                   <p className="truncate text-[0.875rem] font-bold text-ink">{user?.name}</p>
                   <p className="tnum mt-0.5 text-[0.75rem] text-ink-muted">{user?.mobile}</p>
                   <Badge tone="accent" className="mt-2">
-                    Silver Member
+                    {t('ui.silverMember')}
                   </Badge>
                 </div>
                 <Link
@@ -210,14 +214,14 @@ export function TopBar({ onOpenNav }: { onOpenNav: () => void }) {
                   onClick={() => setMenuOpen(false)}
                   className="flex items-center gap-2.5 rounded-md px-3 py-2 text-[0.875rem] text-ink-muted transition-colors hover:bg-navy-50 hover:text-navy-700"
                 >
-                  <User className="h-4 w-4" /> Profile & people
+                  <User className="h-4 w-4" /> {t('sidebar.profile')}
                 </Link>
                 <Link
                   to="/wallet"
                   onClick={() => setMenuOpen(false)}
                   className="flex items-center gap-2.5 rounded-md px-3 py-2 text-[0.875rem] text-ink-muted transition-colors hover:bg-navy-50 hover:text-navy-700"
                 >
-                  <Wallet className="h-4 w-4" /> eWallet · {rupees(wallet.balance)}
+                  <Wallet className="h-4 w-4" /> {t('sidebar.wallet')} · {rupees(wallet.balance)}
                 </Link>
                 <button
                   type="button"
@@ -227,7 +231,7 @@ export function TopBar({ onOpenNav }: { onOpenNav: () => void }) {
                   }}
                   className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-left text-[0.875rem] text-ink-muted transition-colors hover:bg-critical-soft hover:text-critical"
                 >
-                  <LogOut className="h-4 w-4" /> Log out
+                  <LogOut className="h-4 w-4" /> {t('sidebar.logout')}
                 </button>
               </div>
             )}

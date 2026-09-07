@@ -9,7 +9,7 @@ import {
   UtensilsCrossed,
 } from 'lucide-react';
 import { PACKAGES, type HolidayPackage } from '@/data/catalog';
-import { SceneArt } from '@/components/art/SceneArt';
+import { Photo } from '@/components/art/Photo';
 import { rupees, todayISO } from '@/lib/format';
 import { Checkout, type CheckoutDraft } from '@/features/common/Checkout';
 import { Badge, Button, Chip, Modal, PageHeader, Stepper } from '@/components/ui';
@@ -78,7 +78,12 @@ export function Packages() {
         {rows.map((p) => (
           <li key={p.id} className="lift card overflow-hidden">
             <div className="relative h-36">
-              <SceneArt scene={p.scene} className="absolute inset-0" />
+              <Photo
+                src={`/images/packages/${p.id}.jpg`}
+                scene={p.scene}
+                alt={p.name}
+                className="absolute inset-0"
+              />
               <span className="absolute bottom-3 left-3 right-3">
                 <span className="block text-[0.9375rem] font-bold leading-tight text-white drop-shadow">
                   {p.name}
@@ -123,7 +128,12 @@ export function Packages() {
         {detail && (
           <div>
             <div className="relative h-40 overflow-hidden rounded-card">
-              <SceneArt scene={detail.scene} className="absolute inset-0" />
+              <Photo
+                src={`/images/packages/${detail.id}.jpg`}
+                scene={detail.scene}
+                alt={detail.name}
+                className="absolute inset-0"
+              />
             </div>
 
             <p className="mt-4 text-[0.9375rem] leading-relaxed text-ink">{detail.summary}</p>

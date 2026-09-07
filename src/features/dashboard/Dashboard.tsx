@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   Building2,
   Check,
@@ -24,7 +25,7 @@ import { useBooking } from '@/store/booking';
 import { useLiveTrain } from '@/hooks/useLiveTrain';
 import { useLocalized } from '@/hooks/useLocalized';
 import { formatDate, relativeDay, timeOfDay, todayISO } from '@/lib/format';
-import { SceneArt } from '@/components/art/SceneArt';
+import { Photo } from '@/components/art/Photo';
 import { LiveStatusCard } from '@/components/LiveStatusCard';
 import { SearchCard, defaultSearch, type SearchValues } from '@/features/trains/SearchCard';
 import { TrainRow } from '@/features/trains/TrainRow';
@@ -43,6 +44,7 @@ const OFFER_ICON = { percent: Percent, plane: Plane, building: Building2, bus: T
  * the header moves with them.
  */
 export function Dashboard() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const toast = useToast();
   const { L } = useLocalized();
@@ -58,7 +60,11 @@ export function Dashboard() {
   const [copied, setCopied] = useState<string | null>(null);
   const searchRef = useRef<HTMLDivElement>(null);
 
-  const greeting = `Good ${timeOfDay()}`;
+  const greeting = t(
+    { morning: 'ui.goodMorning', afternoon: 'ui.goodAfternoon', evening: 'ui.goodEvening' }[
+      timeOfDay()
+    ],
+  );
   const firstName = (user?.name ?? 'Traveller').split(' ')[0];
 
   /* ---------------------------------------------- next journey + live status */
@@ -137,8 +143,8 @@ export function Dashboard() {
             >
               <Sparkles className="h-4 w-4 shrink-0 text-saffron-500" aria-hidden="true" />
               <span className="leading-none">
-                <span className="block text-[0.8125rem] font-bold text-saffron-700">Assistant</span>
-                <span className="mt-1 block text-[0.6875rem] text-saffron-600">Plan with AI</span>
+                <span className="block text-[0.8125rem] font-bold text-saffron-700">{t('sidebar.assistant')}</span>
+                <span className="mt-1 block text-[0.6875rem] text-saffron-600">{t('ui.planWithAi')}</span>
               </span>
             </Link>
             <Link
@@ -148,7 +154,7 @@ export function Dashboard() {
               <Zap className="h-4 w-4 shrink-0 text-confirmed" aria-hidden="true" />
               <span className="leading-none">
                 <span className="block text-[0.8125rem] font-bold text-confirmed-ink">TATKAL</span>
-                <span className="mt-1 block text-[0.6875rem] text-confirmed">Book in a flash</span>
+                <span className="mt-1 block text-[0.6875rem] text-confirmed">{t('ui.bookInAFlash')}</span>
               </span>
             </Link>
           </div>
@@ -159,7 +165,7 @@ export function Dashboard() {
         </div>
 
         <section>
-          <SectionHeading>Quick Actions</SectionHeading>
+          <SectionHeading>{t('ui.quickActions')}</SectionHeading>
           <QuickActions />
         </section>
 
@@ -167,11 +173,11 @@ export function Dashboard() {
           <SectionHeading
             action={
               <Link to="/explore" className="text-[0.8125rem] font-bold text-navy-600 hover:text-navy-700">
-                View all
+                {t('ui.viewAll')}
               </Link>
             }
           >
-            Recommended For You
+            {t('ui.recommended')}
           </SectionHeading>
           <Recommended
             onPick={(r) => {
@@ -187,21 +193,21 @@ export function Dashboard() {
             action={
               <div className="flex flex-wrap items-center gap-1.5">
                 <Chip active={sort === 'best'} onClick={() => setSort('best')}>
-                  🏆 Best Overall
+                  🏆 {t('ui.bestOverall')}
                 </Chip>
                 <Chip active={sort === 'fastest'} onClick={() => setSort('fastest')}>
-                  ⚡ Fastest
+                  ⚡ {t('ui.fastest')}
                 </Chip>
                 <Chip active={sort === 'cheapest'} onClick={() => setSort('cheapest')}>
-                  ⏱ Cheapest
+                  ⏱ {t('ui.cheapest')}
                 </Chip>
                 <Chip onClick={() => runSearch(search)} icon={<Filter className="h-3.5 w-3.5" />}>
-                  Filter
+                  {t('ui.filter')}
                 </Chip>
               </div>
             }
           >
-            Best trains for {fromName} → {toName}{' '}
+            {t('ui.bestOverall')} · {fromName} → {toName}{' '}
             <span className="font-medium text-ink-muted">({relativeDay(search.date)})</span>
           </SectionHeading>
 
@@ -237,7 +243,7 @@ export function Dashboard() {
                   className="mt-3"
                   onClick={() => setShown((n) => n + 3)}
                 >
-                  Show more trains
+                  {t('ui.showMoreTrains')}
                 </Button>
               )}
             </>
@@ -252,11 +258,11 @@ export function Dashboard() {
           <SectionHeading
             action={
               <Link to="/trips" className="text-[0.8125rem] font-bold text-navy-600 hover:text-navy-700">
-                View all
+                {t('ui.viewAll')}
               </Link>
             }
           >
-            Your Next Journey
+            {t('ui.nextJourney')}
           </SectionHeading>
 
           {nextJourney ? (
@@ -297,7 +303,7 @@ export function Dashboard() {
 
               <div className="mt-3 flex gap-2">
                 <Button size="sm" className="flex-1" onClick={() => navigate('/trips')}>
-                  View Ticket
+                  {t('trips.viewTicket', 'View Ticket')}
                 </Button>
                 <Button
                   size="sm"
@@ -345,7 +351,7 @@ export function Dashboard() {
                 </Link>
               }
             >
-              Live Train Status
+              {t('ui.liveTrainStatus')}
             </SectionHeading>
             <div className="card p-4">
               <LiveStatusCard live={live} compact />
@@ -355,7 +361,12 @@ export function Dashboard() {
 
         {/* tourism promo */}
         <Link to="/packages" className="lift relative block h-44 overflow-hidden rounded-card">
-          <SceneArt scene="hills" className="absolute inset-0" />
+          <Photo
+            src="/images/tourism.jpg"
+            scene="hills"
+            alt="IRCTC Tourism"
+            className="absolute inset-0"
+          />
           <span className="relative flex h-full flex-col justify-end p-4">
             <span className="text-[0.6875rem] font-bold uppercase tracking-wide text-white/80">
               IRCTC Tourism
@@ -367,7 +378,7 @@ export function Dashboard() {
               Luxury stays · Scenic routes · Curated experiences
             </span>
             <span className="mt-3 self-start rounded-lg bg-white px-3 py-1.5 text-[0.75rem] font-bold text-navy-700">
-              Explore Now
+              {t('ui.exploreNow')}
             </span>
           </span>
         </Link>
@@ -377,11 +388,11 @@ export function Dashboard() {
           <SectionHeading
             action={
               <Link to="/offers" className="text-[0.8125rem] font-bold text-navy-600 hover:text-navy-700">
-                View all
+                {t('ui.viewAll')}
               </Link>
             }
           >
-            Offers for You
+            {t('ui.offersForYou')}
           </SectionHeading>
           <ul className="card divide-y divide-line">
             {OFFERS.slice(0, 3).map((o) => {
@@ -413,7 +424,7 @@ export function Dashboard() {
                       ) : (
                         <Copy className="h-3 w-3" />
                       )}
-                      Use code: {o.code}
+                      {t('ui.useCode')}: {o.code}
                     </button>
                   </div>
                 </li>

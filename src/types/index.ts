@@ -1,10 +1,34 @@
 /** Domain model. Mirrors the Firestore schema in the master prompt §5. */
 
-export type Locale = 'en' | 'ta' | 'hi';
+/**
+ * Every language the interface and the railway data are offered in.
+ * `raj` (Rajasthani) has no ISO-639-1 two-letter code, so the three-letter
+ * code is used; Urdu is the one right-to-left script.
+ */
+export type Locale =
+  | 'en'
+  | 'hi'
+  | 'ta'
+  | 'te'
+  | 'kn'
+  | 'ml'
+  | 'mr'
+  | 'gu'
+  | 'or'
+  | 'ur'
+  | 'raj';
 
-/** A translatable value stored as a language map, so one toggle switches
- *  UI strings *and* railway data (master prompt §12). */
-export type LocalizedText = Record<Locale, string> & { [key: string]: string };
+/**
+ * A translatable value stored as a language map, so one toggle switches UI
+ * strings *and* railway data (master prompt §12).
+ *
+ * English is required and every other language is optional: data can be
+ * translated language by language without a partially-filled map failing to
+ * compile, and `localized()` falls back to English for anything missing.
+ */
+export type LocalizedText = { en: string } & Partial<Record<Locale, string>> & {
+  [key: string]: string | undefined;
+};
 
 export type TravelClass = 'SL' | '3A' | '2A' | '1A' | 'CC' | 'EC' | '2S';
 

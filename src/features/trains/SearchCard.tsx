@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ArrowRightLeft, Calendar, ChevronDown, Search, Zap } from 'lucide-react';
 import type { Quota, TravelClass } from '@/types';
 import { STATIONS } from '@/data/stations';
@@ -55,6 +56,7 @@ export function SearchCard({
   onSubmit: (v: SearchValues) => void;
   tatkal?: boolean;
 }) {
+  const { t } = useTranslation();
   const { L } = useLocalized();
   const saved = useSession((s) => s.saved);
   const [recentOpen, setRecentOpen] = useState(false);
@@ -80,7 +82,7 @@ export function SearchCard({
           tatkal ? 'sm:grid-cols-2 lg:grid-cols-3' : 'sm:grid-cols-2 lg:grid-cols-[1fr_auto_1fr]',
         )}
       >
-        <Select label="From" value={value.from} onChange={(e) => set('from', e.target.value)}>
+        <Select label={t('ui.from')} value={value.from} onChange={(e) => set('from', e.target.value)}>
           {STATIONS.map((s) => (
             <option key={s.code} value={s.code}>
               {L(s.name)} ({s.code})
@@ -102,7 +104,7 @@ export function SearchCard({
           </div>
         )}
 
-        <Select label="To" value={value.to} onChange={(e) => set('to', e.target.value)}>
+        <Select label={t('ui.to')} value={value.to} onChange={(e) => set('to', e.target.value)}>
           {STATIONS.map((s) => (
             <option key={s.code} value={s.code}>
               {L(s.name)} ({s.code})
@@ -114,7 +116,7 @@ export function SearchCard({
       <div className={cx('mt-3 grid gap-3', tatkal ? 'sm:grid-cols-2' : 'sm:grid-cols-2 lg:grid-cols-4')}>
         <div>
           <label htmlFor="ri-date" className="mb-1.5 block text-[0.8125rem] font-semibold text-ink">
-            Date
+            {t('ui.date')}
           </label>
           <div className="relative">
             <Calendar
@@ -136,7 +138,7 @@ export function SearchCard({
 
         {!tatkal && (
           <Select
-            label="Class"
+            label={t('ui.travelClass')}
             value={value.travel_class}
             onChange={(e) => set('travel_class', e.target.value as TravelClass)}
           >
@@ -149,7 +151,7 @@ export function SearchCard({
         )}
 
         {!tatkal && (
-          <Select label="Quota" value={value.quota} onChange={(e) => set('quota', e.target.value as Quota)}>
+          <Select label={t('ui.quota')} value={value.quota} onChange={(e) => set('quota', e.target.value as Quota)}>
             {QUOTAS.map((q) => (
               <option key={q} value={q}>
                 {q}
@@ -159,7 +161,7 @@ export function SearchCard({
         )}
 
         <Stepper
-          label="Travellers"
+          label={t('ui.travellers')}
           value={value.passengers}
           onChange={(v) => set('passengers', v)}
           min={1}
@@ -176,7 +178,7 @@ export function SearchCard({
           className="flex-1"
           icon={tatkal ? <Zap className="h-4 w-4" /> : <Search className="h-4 w-4" />}
         >
-          {tatkal ? 'Find Tatkal seats now' : 'Search Trains'}
+          {tatkal ? 'Find Tatkal seats now' : t('ui.searchTrains')}
         </Button>
 
         {!tatkal && saved.length > 0 && (
@@ -186,7 +188,7 @@ export function SearchCard({
               onClick={() => setRecentOpen((v) => !v)}
               className="flex items-center gap-1.5 whitespace-nowrap px-2 text-[0.8125rem] font-bold text-navy-600 hover:text-navy-700"
             >
-              Recent Searches
+              {t('ui.recentSearches')}
               <ChevronDown className={cx('h-4 w-4 transition-transform', recentOpen && 'rotate-180')} />
             </button>
             {recentOpen && (

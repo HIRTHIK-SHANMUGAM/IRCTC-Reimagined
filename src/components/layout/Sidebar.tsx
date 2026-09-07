@@ -1,4 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { NAV } from '@/nav';
 import { useSession } from '@/store/session';
 import { Logo } from './Logo';
@@ -10,6 +11,7 @@ import { cx } from '@/components/ui';
  * white text; Assistant is called out in orange as the AI entry point.
  */
 export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const signOut = useSession((s) => s.signOut);
 
@@ -22,7 +24,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       <div className="no-scrollbar flex-1 overflow-y-auto px-3 pb-6">
         {NAV.map((group, gi) => (
           <div key={group.title ?? `g${gi}`}>
-            {group.title && <p className="nav-section">{group.title}</p>}
+            {group.title && <p className="nav-section">{t(`sidebar.${group.title}`)}</p>}
             {gi === 0 && <div className="pt-2.5" />}
             <ul className="space-y-0.5">
               {group.items.map((item) => {
@@ -40,7 +42,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
                         className="nav-item w-full text-left hover:bg-critical-soft hover:text-critical"
                       >
                         <Icon className="h-[1.0625rem] w-[1.0625rem] shrink-0" aria-hidden="true" />
-                        <span className="truncate">{item.label}</span>
+                        <span className="truncate">{t(`sidebar.${item.label}`)}</span>
                       </button>
                     </li>
                   );
@@ -69,7 +71,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
                             )}
                             aria-hidden="true"
                           />
-                          <span className="truncate">{item.label}</span>
+                          <span className="truncate">{t(`sidebar.${item.label}`)}</span>
                         </>
                       )}
                     </NavLink>
@@ -84,16 +86,16 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       {/* Support prompt, pinned to the bottom as in the reference */}
       <div className="shrink-0 border-t border-line p-3">
         <div className="rounded-card bg-navy-50 p-3.5">
-          <p className="text-[0.8125rem] font-bold text-navy-700">Need Help?</p>
+          <p className="text-[0.8125rem] font-bold text-navy-700">{t('sidebar.needHelp')}</p>
           <p className="mt-1 text-[0.75rem] leading-snug text-ink-muted">
-            Talk to our support team for quick resolution.
+            {t('sidebar.helpBody')}
           </p>
           <NavLink
             to="/support"
             onClick={onNavigate}
             className="mt-3 inline-flex items-center gap-1 text-[0.75rem] font-bold text-saffron-600 hover:text-saffron-700"
           >
-            Contact Support →
+            {t('sidebar.contactSupport')} →
           </NavLink>
         </div>
       </div>

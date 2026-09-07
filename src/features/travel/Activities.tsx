@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Clock, MapPin, Star } from 'lucide-react';
 import { ACTIVITIES, type Activity } from '@/data/catalog';
-import { SceneArt } from '@/components/art/SceneArt';
+import { Photo } from '@/components/art/Photo';
 import { rupees, todayISO } from '@/lib/format';
 import { Checkout, type CheckoutDraft } from '@/features/common/Checkout';
 import { Badge, Button, Chip, PageHeader, Stepper } from '@/components/ui';
@@ -73,7 +73,12 @@ export function Activities() {
         {rows.map((a) => (
           <li key={a.id} className="lift card overflow-hidden">
             <div className="relative h-32">
-              <SceneArt scene={a.scene} className="absolute inset-0" />
+              <Photo
+                src={`/images/activities/${a.id}.jpg`}
+                scene={a.scene}
+                alt={a.name}
+                className="absolute inset-0"
+              />
               <span className="absolute left-3 top-3">
                 <Badge tone="info">{a.category}</Badge>
               </span>

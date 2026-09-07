@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { ChevronRight } from 'lucide-react';
 import type { Scene } from '@/data/catalog';
-import { SceneArt } from '@/components/art/SceneArt';
+import { Photo } from '@/components/art/Photo';
 import { cx } from '@/components/ui';
 
 export interface Recommendation {
@@ -45,7 +45,12 @@ export function Recommended({ onPick }: { onPick: (r: Recommendation) => void })
             onClick={() => onPick(r)}
             className="lift relative h-40 w-[15rem] shrink-0 snap-start overflow-hidden rounded-card text-left"
           >
-            <SceneArt scene={r.scene} className="absolute inset-0" />
+            <Photo
+              src={`/images/destinations/${r.id}.jpg`}
+              scene={r.scene}
+              alt={r.route}
+              className="absolute inset-0"
+            />
             <span className="relative flex h-full flex-col justify-between p-3.5">
               <span
                 className={cx(

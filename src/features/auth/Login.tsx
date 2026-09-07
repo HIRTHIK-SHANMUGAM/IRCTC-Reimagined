@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowLeft,
@@ -26,7 +27,7 @@ const TRUST = [
   { icon: ShieldCheck, title: 'Secure', body: '100% Safe & Secure' },
   { icon: Users, title: 'Trusted', body: 'By Millions Daily' },
   { icon: Ticket, title: 'Seamless', body: 'Booking Experience' },
-];
+] as const;
 
 /**
  * Login / Create Account (addendum §2). Aadhaar is the account and the mobile
@@ -35,6 +36,7 @@ const TRUST = [
  * never reaches storage or the screen.
  */
 export function Login() {
+  const { t } = useTranslation();
   const signIn = useSession((s) => s.signIn);
   const busy = useSession((s) => s.busy);
 
@@ -117,12 +119,12 @@ export function Login() {
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
           >
             <h1 className="text-[2.75rem] font-extrabold leading-[1.05] tracking-tight text-navy-700 sm:text-[3.5rem]">
-              Your Journey
+              {t('ui.yourJourney')}
               <br />
-              <span className="text-saffron-500">Starts Here</span>
+              <span className="text-saffron-500">{t('ui.startsHere')}</span>
             </h1>
             <p className="mt-4 max-w-sm text-[1rem] font-medium leading-relaxed text-navy-800/80">
-              Book tickets, plan journeys and travel across India with IRCTC.
+              {t('ui.loginSub')}
             </p>
           </motion.div>
 
@@ -171,9 +173,9 @@ export function Login() {
                     </span>
                     <div>
                       <h2 className="text-[1.25rem] font-bold leading-tight text-ink">
-                        Login / Create Account
+                        {t('ui.loginTitle')}
                       </h2>
-                      <p className="mt-0.5 text-[0.8125rem] text-ink-muted">Using Aadhaar</p>
+                      <p className="mt-0.5 text-[0.8125rem] text-ink-muted">{t('ui.usingAadhaar')}</p>
                     </div>
                   </div>
 
@@ -251,7 +253,7 @@ export function Login() {
                   {error && <Alert tone="critical">{error}</Alert>}
 
                   <Button type="submit" size="lg" full icon={<Lock className="h-4 w-4" />}>
-                    Continue Securely
+                    {t('ui.continueSecurely')}
                   </Button>
 
                   <p className="text-center text-[0.75rem] leading-relaxed text-ink-faint">
@@ -316,7 +318,7 @@ export function Login() {
             </div>
 
             <Button variant="secondary" size="lg" full loading={demoBusy} onClick={onInstantDemo}>
-              Try the instant demo
+              {t('ui.instantDemo')}
             </Button>
             <p className="mt-2.5 text-center text-[0.75rem] text-ink-faint">
               Opens a seeded account — no Aadhaar, no code, nothing to type.

@@ -11,10 +11,20 @@ export function timeOfDay(): 'morning' | 'afternoon' | 'evening' {
   return 'evening';
 }
 
+/** BCP-47 tags for date formatting. Rajasthani has no CLDR data, so it
+ *  borrows Hindi's, which is the script it is written in. */
 const DATE_LOCALE: Record<Locale, string> = {
   en: 'en-IN',
-  ta: 'ta-IN',
   hi: 'hi-IN',
+  ta: 'ta-IN',
+  te: 'te-IN',
+  kn: 'kn-IN',
+  ml: 'ml-IN',
+  mr: 'mr-IN',
+  gu: 'gu-IN',
+  or: 'or-IN',
+  ur: 'ur-IN',
+  raj: 'hi-IN',
 };
 
 export function formatDate(dateISO: string, locale: Locale = 'en'): string {

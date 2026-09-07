@@ -4,15 +4,26 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#0B4F45" />
-    <meta name="description" content="IRCTC RI — your railway travel operating system. Say where you're going; we handle the rest." />
+    <meta name="theme-color" content="#1a2b6d" />
+    <meta name="description" content="IRCTC RI — book trains, flights, buses, hotels and more across India, in eleven languages." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!--
+      Inter for Latin, plus Noto for every Indic script the app is offered in,
+      so Telugu, Kannada, Malayalam, Odia and Urdu render correctly on devices
+      that do not ship those fonts. Loaded with display=swap and behind
+      preconnect; the CSS stack falls back to installed system Indic fonts
+      first, so the page is readable before these arrive.
+    -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    <title>IRCTC RI</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Sans+Tamil:wght@400;500;600;700&family=Noto+Sans+Telugu:wght@400;500;600;700&family=Noto+Sans+Kannada:wght@400;500;600;700&family=Noto+Sans+Malayalam:wght@400;500;600;700&family=Noto+Sans+Gujarati:wght@400;500;600;700&family=Noto+Sans+Oriya:wght@400;500;600;700&family=Noto+Nastaliq+Urdu:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <title>IRCTC — Your journey, simplified</title>
   </head>
   <body>
     <div id="root"></div>

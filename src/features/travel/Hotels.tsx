@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Building2, MapPin, Star, Wifi } from 'lucide-react';
 import { HOTELS, type Hotel } from '@/data/catalog';
-import { SceneArt } from '@/components/art/SceneArt';
+import { Photo } from '@/components/art/Photo';
 import { rupees, todayISO } from '@/lib/format';
 import { Checkout, type CheckoutDraft } from '@/features/common/Checkout';
 import {
@@ -138,7 +138,12 @@ export function Hotels() {
           {results.map((h) => (
             <li key={h.id} className="lift card overflow-hidden">
               <div className="relative h-36">
-                <SceneArt scene={h.scene} className="absolute inset-0" />
+                <Photo
+                  src={`/images/hotels/${h.id}.jpg`}
+                  scene={h.scene}
+                  alt={h.name}
+                  className="absolute inset-0"
+                />
                 <span className="absolute left-3 top-3 rounded-md bg-white/95 px-2 py-1 text-[0.6875rem] font-bold text-navy-700">
                   <Star className="mr-1 inline h-3 w-3 fill-current text-saffron-500" />
                   {h.rating}

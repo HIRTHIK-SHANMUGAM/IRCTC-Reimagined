@@ -51,11 +51,8 @@ const LOCALE_ALIASES: Record<string, string> = (() => {
     // Station names first, city names second, and never overwrite an existing
     // entry — otherwise "Chennai" (the city of both MAS and MS) resolves to
     // whichever station happens to come last in the table.
-    for (const value of Object.values(s.name)) {
-      const k = value.toLowerCase();
-      if (!(k in map)) map[k] = s.code;
-    }
-    for (const value of Object.values(s.city)) {
+    for (const value of [...Object.values(s.name), ...Object.values(s.city)]) {
+      if (!value) continue;
       const k = value.toLowerCase();
       if (!(k in map)) map[k] = s.code;
     }

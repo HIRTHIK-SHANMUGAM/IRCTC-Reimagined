@@ -17,6 +17,35 @@ This build hides none of that — it just explains it. Availability is stated in
 plain language, every recommendation carries its reason, the fare is shown in
 full before you pay, and the payment state is named on screen at every step.
 
+### Languages
+
+Eleven, switchable from any screen: **English, Hindi, Tamil, Telugu, Marathi,
+Kannada, Gujarati, Malayalam, Odia, Urdu and Rajasthani.**
+
+One switch changes the interface *and* the railway data together — all 28
+stations and all 45 train names carry every language, so "Mysuru Shatabdi
+Express" becomes "మైసూరు శతాబ్ది ఎక్స్‌ప్రెస్" in the same tick as the nav
+labels. Train names are composed from a transliterated vocabulary
+(`src/data/translit.ts`), so adding a language is one column there rather than
+45 hand-written names.
+
+Urdu flips the whole layout right-to-left. The picker floats the languages
+suggested by the browser and timezone to the top and has a filter box, but
+never restricts the rest of the list. Noto fonts cover devices that lack the
+Indic scripts, behind a system-font-first stack. Anything not yet translated
+falls back to English rather than showing a raw key.
+
+### Images
+
+Destination, hotel, package and activity artwork is drawn (`SceneArt`) so the
+app ships complete with nothing to source. To use photographs instead, drop
+files into `public/images/` following the table in its README — the `Photo`
+component picks them up automatically and falls back to the illustration
+whenever a file is absent, so the catalogue can never show a broken image.
+
+The login hero stays drawn on purpose: it is animated, and a photograph cannot
+move.
+
 ### The design
 
 Navy and orange over a light grey-blue page, clean sans throughout, white cards
